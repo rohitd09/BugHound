@@ -4,13 +4,15 @@ This is the final project for CECS 544 (Software Testing & Verification). The ap
 
 # To Run
 
-1. Using node command
+1. Download Node.js from the [official website](https://nodejs.org/en/download).
+
+2. Using node command
 
 ```
 node app.js
 ```
 
-2. Using nodemon
+3. Using nodemon
 
 ```
 npm i nodemon -g
