@@ -1,0 +1,25 @@
+{
+  "name": "bughound",
+  "version": "1.0.0",
+  "description": "Final Project for CECS 544. A bug tracking system.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohitd09/BugHound.git"
+  },
+  "author": "Rohit, Miti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rohitd09/BugHound/issues"
+  },
+  "homepage": "https://github.com/rohitd09/BugHound#readme",
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "path": "^0.12.7"
+  }
+}
