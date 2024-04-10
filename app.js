@@ -6,11 +6,28 @@ const multer = require("multer")
 const session = require('express-session');
 const app = express();
 const port = 3000;
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./app/public"));
 app.use(express.json());
 app.use(flash())
+
+const { createPool } = require('mysql')
+
+const pool = createPool({
+    host: "localhost",
+    user: "root",
+    password: "2000",
+    database: "BugHound",
+    connectionLimit: 10
+})
+
+pool.query("select * from test", (err, result, fields) => {
+    if (err){
+        console.log(err);
+    } else {
+        console.log(result);
+    }
+})
 
 app.use(session({
   secret: 'your secret key',
