@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Bug Report Entry Page</title>
+    
+    <style>
+        
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f7f7f7;
+    color: #444;
+    line-height: 1.6;
+}
+
+.container {
+    width: 80%;
+    max-width: 1100px;
+    margin: 2rem auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 32px;
+    color: #5D647B;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-gap: 30px;
+    padding: 20px;
+}
+
+.grid > div {
+    background: #f8f8f8;
+    border: none;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #5D647B;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    background: #fefefe;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+    border-color: #5D647B;
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+    height: 120px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+    padding: 10px 30px;
+    border: none;
+    border-radius: 20px;
+    background: #5D647B;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+input[type="submit"]:hover,
+input[type="reset"]:hover {
+    background: #4e5571;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+input[type="button"] {
+    background: #a2a2a2;
+}
+
+input[type="button"]:hover {
+    background: #929292;
+}
+
+@media only screen and (max-width: 768px) {
+    .container {
+        width: 95%;
+        margin: 1rem auto;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    input[type="submit"],
+    input[type="reset"],
+    input[type="button"] {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>New Bug Report Page</h1>
+    <form action="submit_bug.php" method="post" enctype="multipart/form-data">
+        <div class="grid">
+            <div>
+                <label for="program">Program:</label>
+                <select id="program" name="program">
+                    <option value="">--Please choose an option--</option>
+                    <option value="Cobol Coder V2">Cobol Coder V2</option>
+                    <option value="Fortran">Fortran</option>
+
+                </select>
+            </div>
+            <div>
+                <label for="report_type">Report Type:</label>
+                <select id="report_type" name="report_type">
+                    <option value="">--Please choose an option--</option>
+                    <option value="CodingError">Coding Error</option>
+                    <option value="DesignIssue">Design Issue</option>
+                    <option value="Suggestion">Suggestion</option>
+                    <option value="Documentation">Documentation</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Query">Query</option>
+                </select>
+            </div>
+            <div>
+                <label for="severity">Severity:</label>
+                <select id="severity" name="severity">
+                    <option value="">--Please choose an option--</option>
+                    <option value="Fatal">Fatal</option>
+                    <option value="Serious">Serious</option>
+                    <option value="Minor">Minor</option>
+                 
+                </select>
+            </div>
+            <div class="full-width">
+                <label for="problem_summary">Problem Summary:</label>
+                <input type="text" id="problem_summary" name="problem_summary">
+            </div>
+            <div class="full-width">
+                <label for="problem">Problem:</label>
+                <textarea id="problem" name="problem" rows="4"></textarea>
+            </div>
+            <div class="full-width">
+                <label for="suggested_fix">Suggested Fix:</label>
+                <textarea id="suggested_fix" name="suggested_fix" rows="4"></textarea>
+            </div>
+            <div>
+                <label for="reported_by">Reported By:</label>
+                <select id="reported_by" name="reported_by">
+                       
+
+
+                </select>
+            </div>
+            <div>
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date">
+            </div>
+            <div class="checkbox-label">
+                <input type="checkbox" id="reproducible" name="reproducible">
+                <label for="reproducible">Reproducible?</label>
+            </div>
+            <br>
+            <h1>Items Below are for use only for the development team</h1>
+
+            <br>
+            <div>
+                <label for="functional_area">Functional Area:</label>
+                <select id="functional_area" name="functional_area">
+                    
+                </select>
+            </div>
+            <div>
+                <label for="assigned_to">Assigned To:</label>
+                <select id="assigned_to" name="assigned_to">
+                    
+
+
+
+                </select>
+            </div>
+            <div class="full-width">
+                <label for="comments">Comments:</label>
+                <textarea id="comments" name="comments" rows="4"></textarea>
+            </div>
+            <div>
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="">--Please choose an option--</option>
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div>
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority">
+                    <option value="">--Please choose an option--</option>
+                    <option value="One">1</option>
+                    <option value="Two">2</option>
+                    <option value="Three">3</option>
+                    <option value="Four">4</option>
+                    <option value="Five">5</option>
+                </select>
+            </div>
+            <div>
+                <label for="resolution">Resolution:</label>
+                <select id="resolution" name="resolution">
+                    <option value="">--Please choose an option--</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Fixed">Fixed</option>
+                    <option value="Irreproducible">Irreproducible</option>
+                    <option value="Deferred">Deferred</option>
+                    <option value="As Designed">As Designed</option>
+                    <option value="CantBeFixed">Can't Be Fixed</option>
+                    <option value="Withdrawn">Withdrawn By Reporter</option>
+                    <option value="MoreInfo">Need More Info</option>
+                    <option value="Disagree">Disagree With Suggestion</option>
+                </select>
+            </div>
+            <div>
+                <label for="resolution_version">Resolution Version:</label>
+                <input type="text" id="resolution_version" name="resolution_version">
+            </div>
+            <div>
+                <label for="resolved_by">Resolved By:</label>
+                <select id="resolved_by" name="resolved_by">
+                    
+
+
+
+                </select>
+            </div>
+            <div>
+                <label for="resolved_date">Resolved Date:</label>
+                <input type="date" id="resolved_date" name="resolved_date">
+            </div>
+            <div>
+                <label for="tested_by">Tested By:</label>
+                <select id="tested_by" name="tested_by">
+                    
+
+
+                    
+                </select>
+            </div>
+            <div>
+                <label for="test_date">Date:</label>
+                <input type="date" id="test_date" name="test_date">
+            </div>
+            <div class="checkbox-label">
+                <input type="checkbox" id="treat_as_deferred" name="treat_as_deferred">
+                <label for="treat_as_deferred">Treat as Deferred?</label>
+            </div>
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Submit">
+            <input type="reset" value="Reset">
+            <input type="button" value="Cancel" onclick="window.location.href='index.php';">
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
