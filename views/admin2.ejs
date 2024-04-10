@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <!-- Include Bootstrap CSS -->
+    <style>
+              form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.input-group label {
+  margin-right: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+input[type=text], input[type=password], input[type = number],select {
+
+			padding: 12px 20px;
+			display: inline-block;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+		}
+input[type=submit] {
+			background-color: #4CAF50;
+			color: white;
+			padding: 14px 20px;
+			margin: 8px 0;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+    input[type=submit]:hover {
+			background-color: #45a049;
+		}
+
+		.container {
+			padding: 16px;
+		}
+    body {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+        body::before {
+            content: '';
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('lb.jpg');
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.2; 
+            z-index: -1; /* Place the background behind the content */
+        }
+
+
+
+
+label {
+
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+    </style>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="container mt-5 text-center">
+        <h1>Admin Dashboard</h1>
+        <div class="alert alert-secondary mx-auto" role="alert">
+            <h4 class="alert-heading">Warning!</h4>
+            <p>This is an admin rights dashboard. Please be cautious while accessing and using it, as changes here can affect the entire application.</p>
+        </div>
+        <div class="my-4">
+            <a href="/addEmployee" class="btn btn-primary m-2">Add Employee</a>
+            <a href="/viewEmployee" class="btn btn-secondary m-2">View Employees</a>
+            <a href="/addProgram" class="btn btn-primary m-2">Add Program</a>
+            <a href="/viewProgram" class="btn btn-secondary m-2">View Programs</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
