@@ -52,6 +52,92 @@ app.use((req, res, next)=>{
     next()
 })
 
+
+app.post('/start_page', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  //const hashedPassword = crypto.createHash('sha512').update(password).digest('hex').substr(0, 32);
+
+  const query = 'SELECT * FROM employees WHERE username = ? AND password = ?';
+  conn.query(query, [username, hashedPassword], (err, results) => {
+      if (err) {
+          console.error('SQL query error:', err);
+          return res.redirect('/');
+      }
+
+      if (results.length > 0) {
+          req.session.username = results[0].username;
+          req.session.userlevel = results[0].userlevel;
+          res.redirect('/start_page');
+      } else {
+          req.session.destroy(() => {
+              res.redirect('/');
+          });
+      }
+  });
+});
+
+
+app.get('/start_page', (req, res) => {
+  if (req.session.username && req.session.userlevel) {
+      res.render('start_page', {
+          username: req.session.username,
+          userlevel: req.session.userlevel
+      });
+  } else {
+      res.redirect('/');
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.session.destroy(() => {
+      res.redirect('/');
+  });
+});
+
+
+//app.get('/bugreport', (req, res) => {
+//  res.render('bugreport'); 
+//});
+
+
+app.get('/bugreport', (req, res) => {
+  req.session.destroy(() => {
+      res.render('bugreport'); 
+  });
+});
+
+app.get('/addEmployee', (req, res) => {
+  res.render('addEmployee');
+});
+
+app.post('/addEmployee', (req, res) => {
+  const { name, username, password, userlevel } = req.body;
+  // Perform server-side validation and other processing here
+  console.log('Form submitted with data:', req.body);
+  res.send('Employee added successfully'); 
+});
+
+app.route('/addProgram')
+  .get((req, res) => {
+      // Display the form by rendering the same EJS file without form data
+      res.render('addProgram', { formData: null });
+  })
+  .post((req, res) => {
+      // After form submission, render the EJS file with form data to display the success message
+      res.render('addProgram', { formData: req.body });
+  });
+
+
+  app.get('/admin', (req, res) => {
+    res.render('admin');
+  });
+  
+  app.get('/admin2', (req, res) => {
+    res.render('admin2');
+  });
+  
+
 app.get("/", (req, res) => {
     res.render("home", { uname: "" });
 })

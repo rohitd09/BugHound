@@ -1,0 +1,33 @@
+
+<!doctype html>
+<html lang='en'>
+<head>
+    <meta charset='utf8'>
+    <title>Bughound</title>        
+    <link rel='stylesheet' href='/css/style.css'>
+    <!--link rel="icon" href="/media/fav.png"-->
+    <!--script type='text/javascript' src='/js/start_page/main.js'></script-->
+</head>
+<body>
+    <h1>Welcome to Bughound</h1>
+    
+    <% if (username && userlevel) { %>
+    <table>
+        <tr><td><a href="/bugs/addBug">Enter NEW Bug</a></td></tr>
+        <tr><td><a href="/bugs/searchBug">Update EXISTING Bug</a></td></tr>
+        <% if (userlevel >= 3) { %>
+        <tr><td><a href="/maintain_db">Database Maintenance</a></td></tr>
+        <% } %>
+        <tr><td>User: <span class="green_me"><%= username %></span>, User Level: <span><%= userlevel %></span></td></tr>
+        <tr><td><button class="small_text" onclick='return_to_login_page();'>Sign out</button></td></tr>
+    </table>
+    <% } else { %>
+    <table>
+        <tr><td>User could not be validated. Please click return and attempt to login again.</td></tr>
+        <tr><td><button onclick='return_to_login_page();'>Return</button></td></tr>
+    </table>
+    <% } %>
+    
+
+</body>
+</html>
