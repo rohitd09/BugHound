@@ -112,36 +112,12 @@ app.use((req, res, next)=>{
 })
 
 app.get('/bugreport', (req, res) => {
-  res.render('bugreport'); 
+  res.render('bugreports/bugreport'); 
 });
 
 app.get('/addEmployee', (req, res) => {
-   res.render('addEmployee');
+  res.render('admin/employee/addEmployee');
 });
-
-app.get('/addProgram', (req, res) => {
-   res.render('addProgram')
-})
-
-app.get('/admin', (req, res) => {
-   res.render('admin');
-});
-
-app.get("/login", (req, res) => {
-   res.render("login");
-})   
- 
-app.get("/", (req, res) => {
-   res.render("home", { uname: "" });
-})
-
-app.post('/login', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureFlash: true,
-  successFlash: true
-}));
-
 
 app.post("/add-employee", (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
@@ -160,6 +136,78 @@ app.post("/add-employee", (req, res) => {
       });
   });
 });
+
+app.get('/viewEmployees', (req, res) => {
+  connection.query('SELECT * FROM User', (err, users) => {
+    if (err) {
+      console.log(err);
+      return done(err);
+    } else {
+      res.render('admin/employee/view_employee', {users: users})
+    }
+  })
+})
+
+app.get('/editEmployee/:id', (req, res) => {
+  const id = req.params.id; // Corrected: directly assigning `req.params.id` to `id`
+
+  connection.query('SELECT * FROM User WHERE user_id = ?', [id], (err, results) => {
+    if (err) {
+      console.error(err); // Use console.error for errors
+      res.status(500).send('Database error'); // Handle the error properly in the response
+    } else {
+      if (results.length > 0) {
+        res.render('admin/employee/edit_employee', { user: results[0] }); // Pass only the first result if the user is found
+      } else {
+        res.status(404).send('User not found'); // Handle the case where no user is found
+      }
+    }
+  });
+});
+
+app.post("/editEmployee", (req, res) => {
+  let { user_id, fname, mname, lname, address, dob, email, password, userlevel } = req.body;
+
+  bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+          console.error("Error hashing password:", err);
+          req.flash("error", "Employee could not be edited!")
+          res.redirect("/admin")
+      }
+      connection.query('Update User Set first_name = ?, middle_name = ?, last_name = ?, address = ?, email = ?, password = ?, user_level = ?, DOB = ? Where user_id = ?', [fname, mname, lname, address, email, hash, userlevel, dob, user_id], (err, result) => {
+          if (err) {
+              console.error("Error inserting user into database:", err);
+              req.flash("error", "Employee could not be edited!")
+              res.redirect("/admin")
+          }
+          req.flash("success", "Employee Details Edited Succesfully!")
+          res.redirect("/admin");
+      });
+  });
+});
+
+app.get('/addProgram', (req, res) => {
+   res.render('admin/program/addProgram')
+})
+
+app.get('/admin', (req, res) => {
+   res.render('admin/admin');
+});
+
+app.get("/login", (req, res) => {
+   res.render("login");
+})   
+ 
+app.get("/", (req, res) => {
+   res.render("home");
+})
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true,
+  successFlash: true
+}));
 
 app.get("/logout", (req, res) => {
   req.logout((err) => {

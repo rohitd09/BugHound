@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>View Employee</title>
+        
+        <!-- Bootstrap 5 CSS -->
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body, html {
+                height: 100%;
+                margin: 0;
+            }
+
+            body::before {
+                content: '';
+                position: fixed; 
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-image: url('lb.jpg');
+                background-size: 60%;
+                background-position: center;
+                background-repeat: no-repeat;
+                opacity: 0.2; 
+                z-index: -1; /* Place the background behind the content */
+            }
+            .icon-pencil i {
+                color: blue; /* Sets the pencil icon color to gray */
+            }
+
+            .icon-trash i {
+                color: red; /* Sets the trash icon color to red */
+            }
+
+        </style>
+
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Employee Manager</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin" class="nav-link"><i class="fa fa-angle-left" aria-hidden="true"></i>Go Back</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container mt-4">
+            <h2 class="mb-4">Employees List</h2>
+            <table class="table table-striped">
+                <tr class="table-dark">
+                    <th>Employee Id</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Last Name</th>
+                    <th>Comapny Email</th>
+                    <th>User Level</th>
+                    <th>Action</th>
+                </tr>
+                <% users.forEach((user) => { %>
+                    <tr>
+                        <td><%= user.user_id %></td>
+                        <td><%= user.first_name %></td>
+                        <td><%= user.middle_name %></td>
+                        <td><%= user.last_name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.user_level %></td>
+                        <td><a href="/editEmployee/<%= user.user_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> | <a href="#" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+                    </tr>
+                <% }) %>
+            </table>
+        </div>
+
+        <script src="js/register.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>
