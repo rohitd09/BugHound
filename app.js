@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const methodOverride = require('method-override');
 const mysql = require("mysql");
 const bcrypt = require("bcryptjs");
 const session = require('express-session');
@@ -41,6 +42,7 @@ app.use(flash());
 app.use(express.json());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(methodOverride('_method'));
 
 passport.use(new LocalStrategy({
   usernameField: 'email',
@@ -119,7 +121,7 @@ app.get('/addEmployee', (req, res) => {
   res.render('admin/employee/addEmployee');
 });
 
-app.post("/add-employee", (req, res) => {
+app.post("/addEmployee", (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -149,23 +151,23 @@ app.get('/viewEmployees', (req, res) => {
 })
 
 app.get('/editEmployee/:id', (req, res) => {
-  const id = req.params.id; // Corrected: directly assigning `req.params.id` to `id`
+  const id = req.params.id; 
 
   connection.query('SELECT * FROM User WHERE user_id = ?', [id], (err, results) => {
     if (err) {
-      console.error(err); // Use console.error for errors
-      res.status(500).send('Database error'); // Handle the error properly in the response
+      console.error(err); 
+      res.status(500).send('Database error'); 
     } else {
       if (results.length > 0) {
-        res.render('admin/employee/edit_employee', { user: results[0] }); // Pass only the first result if the user is found
+        res.render('admin/employee/edit_employee', { user: results[0] }); 
       } else {
-        res.status(404).send('User not found'); // Handle the case where no user is found
+        res.status(404).send('User not found');
       }
     }
   });
 });
 
-app.post("/editEmployee", (req, res) => {
+app.put("/editEmployee/:id", (req, res) => {
   let { user_id, fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -185,6 +187,20 @@ app.post("/editEmployee", (req, res) => {
       });
   });
 });
+
+app.delete("/deleteEmployee/:id", (req, res) => {
+    const id = req.params.id;
+
+    connection.query('Delete From User Where user_id = ?', [id], (err, result) => {
+      if (err) {
+        console.log("Error deleting from the database:", err);
+        req.flash("error", "Employee could not be deleted!")
+        res.redirect("/admin")
+      }
+      req.flash("success", "Employee Details Deleted Successfully!")
+      res.redirect("/admin")
+    })
+})
 
 app.get('/addProgram', (req, res) => {
    res.render('admin/program/addProgram')

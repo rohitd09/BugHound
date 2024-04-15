@@ -52,7 +52,7 @@
 
         <div class="container mt-4">
             <h2 class="mb-4">Edit Employee</h2>
-            <form action="/editEmployee" method="post">
+            <form action="/editEmployee/<%= user.user_id %>?_method=PUT" method="POST">
                 <div class="mb-3">
                     <label for="user_id" class="form-label">User ID</label>
                     <input type="text" class="form-control" id="user_id" value="<%= user.user_id %>" name="user_id" readonly>
