@@ -1,0 +1,11 @@
+.custom-btn-group .btn {
+    margin-right: -1px; 
+    color: white; 
+}
+
+.full-height {
+    height: 60vh; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+}

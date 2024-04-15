@@ -1,32 +1,40 @@
 <%- include("./partials/header") %>
 
+<% if(success && success.length > 0){ %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <%= success %>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </div>
+<% } %>
+
 <div class="full-height">
-        <div class="container-md justify-content-center d-flex flex-column">
-            <div class="row">
-                <!-- Image Column -->
-                <div class="col-md-6 d-flex align-items-center justify-content-center">
-                    <img src="csulb_shark.png" style="max-width: 50%; height: auto;" alt="Descriptive Alt Text">
-                </div>
+    <div class="container-md justify-content-center d-flex flex-column">
+        <div class="row">
+            <!-- Image Column -->
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <img src="csulb_shark.png" style="max-width: 50%; height: auto;" alt="Descriptive Alt Text">
+            </div>
     
-                <!-- Existing Content Column -->
-                <div class="col-md-6 text-center d-flex align-items-center justify-content-center">
-                    <div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <p class="fs-1">Hi, This is Bug Hound. Your Bug Tracking System!!!</p>
-                            </div>
+            <!-- Existing Content Column -->
+            <div class="col-md-6 text-center d-flex align-items-center justify-content-center">
+                <div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <p class="fs-1">Hi, This is Bug Hound. Your Bug Tracking System!!!</p>
                         </div>
-                        <div class="row">
-                            <div class="col custom-btn-group">
+                    </div>
+                    <div class="row">
+                        <div class="col custom-btn-group">
                                 <button type="button" class="btn btn-info btn-lg" style="color: white;">View Existing Bug Reports</button>
                                 <button type="button" class="btn btn-danger btn-lg" style="margin-left: -1px;">Report a New Bug</button>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
     
     
 
@@ -38,4 +46,4 @@
     
     <%= uname %> -->
 
-    <%- include("./partials/footer") %>
+<%- include("./partials/footer") %>

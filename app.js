@@ -1,153 +1,176 @@
 const express = require('express');
-const path = require('path');
 const bodyParser = require("body-parser");
+const mysql = require("mysql");
+const bcrypt = require("bcryptjs");
+const session = require('express-session');
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 const flash = require("connect-flash");
 const multer = require("multer")
-const session = require('express-session');
+const path = require('path');
+const cookie = require("cookie-parser");
+
+const dotenv = require("dotenv").config();
+
 const app = express();
+
 const port = 3000;
+
+const connection = mysql.createConnection({
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE,
+  connectionLimit: 10
+})
+
+connection.connect(err => {
+  if (err) throw err;
+  console.log("Connected to MySQL Server Successfully!");
+})
+
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./app/public"));
-app.use(express.json());
-app.use(flash())
-
-const { createPool } = require('mysql')
-
-const pool = createPool({
-    host: "localhost",
-    user: "root",
-    password: "2000",
-    database: "BugHound",
-    connectionLimit: 10
-})
-
-pool.query("select * from test", (err, result, fields) => {
-    if (err){
-        console.log(err);
-    } else {
-        console.log(result);
-    }
-})
-
 app.use(session({
-  secret: 'your secret key',
+  secret: 'mysecretkey',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: !true } 
 }));
 
+app.use(flash());
+app.use(express.json());
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password'
+}, (email, password, done) => {
+  connection.query('SELECT * FROM User WHERE email = ?', [email], (err, results) => {
+    if (err) {
+      console.error("Error during database query:", err);
+      return done(err);
+    }
+    if (!results || results.length === 0) {
+      return done(null, false, { message: "No User Found" });
+    }
+
+    const user = results[0];
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) {
+        console.error("Error during password comparison:", err);
+        return done(err);
+      }
+      if (isMatch) {
+        return done(null, user);
+      } else {
+        return done(null, false, { message: "Password incorrect" });
+      }
+    });
+  });
+}));
+
+
+
+passport.serializeUser((user, done) => {
+  console.log("Serializing user:", user);
+  done(null, user.user_id);
+})
+
+passport.deserializeUser((id, done) => {
+  connection.query('SELECT * FROM User WHERE user_id = ?', [id], (err, results) => {
+    if (err) {
+      console.error("Error during user deserialization:", err);
+      return done(err);
+    }
+    if (!results || results.length === 0) {
+      return done(new Error('User not found'));
+    }
+    done(null, results[0]);
+  });
+});
+
+
+app.use("/js", express.static(__dirname + '/public/js'));
+app.use("/css", express.static(__dirname + '/public/css'));
+app.use(express.static("./app/public"));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
 app.use((req, res, next)=>{
-    res.locals.error = req.flash('error')
-    res.locals.success = req.flash('success')
-    if(req.query._method == 'DELETE'){
-      req.method = "DELETE"
-      req.url = req.path
-    } else if(req.query._method == 'PUT'){
-      req.method = "PUT"
-      req.url = req.path
-    }
-    next()
+  res.locals.currentUser = req.user
+  res.locals.error = req.flash('error')
+  res.locals.success = req.flash('success')
+  if(req.query._method == 'DELETE'){
+    req.method = "DELETE"
+    req.url = req.path
+  } else if(req.query._method == 'PUT'){
+    req.method = "PUT"
+    req.url = req.path
+  }
+  next()
 })
 
-
-app.post('/start_page', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
-  //const hashedPassword = crypto.createHash('sha512').update(password).digest('hex').substr(0, 32);
-
-  const query = 'SELECT * FROM employees WHERE username = ? AND password = ?';
-  conn.query(query, [username, hashedPassword], (err, results) => {
-      if (err) {
-          console.error('SQL query error:', err);
-          return res.redirect('/');
-      }
-
-      if (results.length > 0) {
-          req.session.username = results[0].username;
-          req.session.userlevel = results[0].userlevel;
-          res.redirect('/start_page');
-      } else {
-          req.session.destroy(() => {
-              res.redirect('/');
-          });
-      }
-  });
-});
-
-
-app.get('/start_page', (req, res) => {
-  if (req.session.username && req.session.userlevel) {
-      res.render('start_page', {
-          username: req.session.username,
-          userlevel: req.session.userlevel
-      });
-  } else {
-      res.redirect('/');
-  }
-});
-
-app.get('/logout', (req, res) => {
-  req.session.destroy(() => {
-      res.redirect('/');
-  });
-});
-
-
-//app.get('/bugreport', (req, res) => {
-//  res.render('bugreport'); 
-//});
-
-
 app.get('/bugreport', (req, res) => {
-  req.session.destroy(() => {
-      res.render('bugreport'); 
-  });
+  res.render('bugreport'); 
 });
 
 app.get('/addEmployee', (req, res) => {
-  res.render('addEmployee');
+   res.render('addEmployee');
 });
 
-app.post('/addEmployee', (req, res) => {
-  const { name, username, password, userlevel } = req.body;
-  // Perform server-side validation and other processing here
-  console.log('Form submitted with data:', req.body);
-  res.send('Employee added successfully'); 
+app.get('/addProgram', (req, res) => {
+   res.render('addProgram')
+})
+
+app.get('/admin', (req, res) => {
+   res.render('admin');
 });
 
-app.route('/addProgram')
-  .get((req, res) => {
-      // Display the form by rendering the same EJS file without form data
-      res.render('addProgram', { formData: null });
-  })
-  .post((req, res) => {
-      // After form submission, render the EJS file with form data to display the success message
-      res.render('addProgram', { formData: req.body });
-  });
-
-
-  app.get('/admin', (req, res) => {
-    res.render('admin');
-  });
-  
-  app.get('/admin2', (req, res) => {
-    res.render('admin2');
-  });
-  
-
+app.get("/login", (req, res) => {
+   res.render("login");
+})   
+ 
 app.get("/", (req, res) => {
-    res.render("home", { uname: "" });
+   res.render("home", { uname: "" });
 })
 
-app.post("/", (req, res) => {
-    const { uname } = req.body;
-    res.render("home", { uname: uname })
-    
-    // res.redirect("/")
-})
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/',
+  failureRedirect: '/login',
+  failureFlash: true,
+  successFlash: true
+}));
+
+
+app.post("/add-employee", (req, res) => {
+  let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
+
+  bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+          console.error("Error hashing password:", err);
+          return res.status(500).send("Server error");
+      }
+      connection.query('INSERT INTO User (first_name, middle_name, last_name, address, email, password, user_level, DOB) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [fname, mname, lname, address, email, hash, userlevel, dob], (err, result) => {
+          if (err) {
+              console.error("Error inserting user into database:", err);
+              return res.status(500).send("Database error");
+          }
+          res.redirect("/admin");
+      });
+  });
+});
+
+app.get("/logout", (req, res) => {
+  req.logout((err) => {
+      if (err) {
+          console.error('Logout error:', err);
+          return next(err);
+      }
+      res.redirect("/");
+  });
+});
+
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);

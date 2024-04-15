@@ -31,35 +31,26 @@
 </head>
 <body>
     <div class="container mt-5">
-        <% if (!formData) { %>
-            <h2 class="text-center mb-4">Add Program</h2>
-            <form id="addProgram" method="post" action="/add-program">
-                <div class="mb-3">
-                    <label for="pName" class="form-label">Program Name:</label>
-                    <input type="text" class="form-control" id="pName" name="pName" required>
-                </div>
-                <div class="mb-3">
-                    <label for="pRelease" class="form-label">Program Release:</label>
-                    <input type="number" class="form-control" id="pRelease" name="pRelease" min="0" required>
-                </div>
-                <div class="mb-3">
-                    <label for="pVersion" class="form-label">Program Version:</label>
-                    <input type="number" class="form-control" id="pVersion" name="pVersion" min="0" required>
-                </div>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
-        <% } else { %>
-            <div class="alert alert-success" role="alert">
-                <h4 class="alert-heading">Program Added Successfully!</h4>
-                <p>Program Name: <%= formData.pName %></p>
-                <p>Program Release: <%= formData.pRelease %></p>
-                <p>Program Version: <%= formData.pVersion %></p>
-                <hr>
-                <p class="mb-0"><a href="/add-program" class="btn btn-primary">Add Another Program</a></p>
+        <h2 class="text-center mb-4">Add Program</h2>
+        <form id="addProgram" method="post" action="/add-program">
+            <div class="mb-3">
+                <label for="pName" class="form-label">Program Name:</label>
+                <input type="text" class="form-control" id="pName" name="pName" required>
             </div>
-        <% } %>
+            <div class="mb-3">
+                <label for="pRelease" class="form-label">Program Release:</label>
+                <input type="number" class="form-control" id="pRelease" name="pRelease" min="0" required>
+            </div>
+            <div class="mb-3">
+                <label for="pVersion" class="form-label">Program Version:</label>
+                <input type="number" class="form-control" id="pVersion" name="pVersion" min="0" required>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/admin" class="btn btn-danger">Cancel</a>
+                <button type="reset" class="btn btn-warning">Reset</button>
+            </div>
+        </form>
     </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
