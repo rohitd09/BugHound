@@ -15,6 +15,9 @@ const dotenv = require("dotenv").config();
 
 const app = express();
 
+const middleware = require('./middleware');
+const { pid } = require('process');
+
 const port = 3000;
 
 const connection = mysql.createConnection({
@@ -54,7 +57,7 @@ passport.use(new LocalStrategy({
       return done(err);
     }
     if (!results || results.length === 0) {
-      return done(null, false, { message: "No User Found" });
+      return done(null, false, { message: "Incorrect Password or Username!" });
     }
 
     const user = results[0];
@@ -66,7 +69,7 @@ passport.use(new LocalStrategy({
       if (isMatch) {
         return done(null, user);
       } else {
-        return done(null, false, { message: "Password incorrect" });
+        return done(null, false, { message: "Incorrect Password or Username!" });
       }
     });
   });
@@ -113,15 +116,19 @@ app.use((req, res, next)=>{
   next()
 })
 
-app.get('/bugreport', (req, res) => {
+app.get('/bugreport', middleware.isLoggedIn, (req, res) => {
   res.render('bugreports/bugreport'); 
 });
 
-app.get('/addEmployee', (req, res) => {
-  res.render('admin/employee/addEmployee');
+app.post('/bugreport', (req, res) => {
+  res.redirect('/')
+})
+
+app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
+  res.render('admin/employee/add_employee');
 });
 
-app.post("/addEmployee", (req, res) => {
+app.post("/addEmployee", middleware.isLevelThree, (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -134,12 +141,13 @@ app.post("/addEmployee", (req, res) => {
               console.error("Error inserting user into database:", err);
               return res.status(500).send("Database error");
           }
+          req.flash("success", "Employee Details Added Successfully!")
           res.redirect("/admin");
       });
   });
 });
 
-app.get('/viewEmployees', (req, res) => {
+app.get('/viewEmployees', middleware.isLevelThree, (req, res) => {
   connection.query('SELECT * FROM User', (err, users) => {
     if (err) {
       console.log(err);
@@ -150,7 +158,7 @@ app.get('/viewEmployees', (req, res) => {
   })
 })
 
-app.get('/editEmployee/:id', (req, res) => {
+app.get('/editEmployee/:id', middleware.isLevelThree, (req, res) => {
   const id = req.params.id; 
 
   connection.query('SELECT * FROM User WHERE user_id = ?', [id], (err, results) => {
@@ -167,7 +175,7 @@ app.get('/editEmployee/:id', (req, res) => {
   });
 });
 
-app.put("/editEmployee/:id", (req, res) => {
+app.put("/editEmployee/:id", middleware.isLevelThree, (req, res) => {
   let { user_id, fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -188,7 +196,7 @@ app.put("/editEmployee/:id", (req, res) => {
   });
 });
 
-app.delete("/deleteEmployee/:id", (req, res) => {
+app.delete("/deleteEmployee/:id", middleware.isLevelThree, (req, res) => {
     const id = req.params.id;
 
     connection.query('Delete From User Where user_id = ?', [id], (err, result) => {
@@ -199,14 +207,83 @@ app.delete("/deleteEmployee/:id", (req, res) => {
       }
       req.flash("success", "Employee Details Deleted Successfully!")
       res.redirect("/admin")
-    })
+    });
+});
+
+app.get('/addProgram', middleware.isLevelThree, (req, res) => {
+   res.render('admin/program/add_program')
 })
 
-app.get('/addProgram', (req, res) => {
-   res.render('admin/program/addProgram')
-})
+app.post('/addProgram', middleware.isLevelThree, (req, res) => {
+    let { pName, pCategory, pVersion, pSummary } = req.body;
+    connection.query('Insert Into Program (program_name, program_category, program_version, program_summary) Values (?, ?, ?, ?)', [pName, pCategory, pVersion, pSummary], (err, result) => {
+      if(err){
+        console.log(err);
+        return res.status(500).send("Error Status 500! Database Error!");
+      }
+      req.flash("success", "Program Details Added Successfully!");
+      res.redirect("/admin");
+    });
+});
 
-app.get('/admin', (req, res) => {
+app.get('/viewPrograms', middleware.isLevelThree, (req, res) => {
+  connection.query('SELECT * FROM Program', (err, programs) => {
+    if (err) {
+      console.log(err);
+      return done(err);
+    } else {
+      res.render('admin/program/view_program', {programs: programs})
+    }
+  });
+});
+
+app.get('/editProgram/:id', middleware.isLevelThree, (req, res) => {
+  const id = req.params.id; 
+
+  connection.query('SELECT * FROM Program WHERE program_id = ?', [id], (err, results) => {
+    if (err) {
+      console.error(err); 
+      res.status(500).send('Database error'); 
+    } else {
+      if (results.length > 0) {
+        res.render('admin/program/edit_program', { program: results[0] }); 
+      } else {
+        res.status(404).send('Program not found');
+      }
+    }
+  });
+});
+
+app.put("/editProgram/:id", middleware.isLevelThree, (req, res) => {
+  let { pId, pName, pCategory, pVersion, pSummary } = req.body;
+
+  connection.query('Update Program Set program_name = ?, program_category = ?, program_version = ?, program_summary = ? Where program_id = ?', [pName, pCategory, pVersion, pSummary, pId], (err, result) => {
+      if (err) {
+          console.error("Error inserting user into database:", err);
+          req.flash("error", "Program could not be edited!")
+          res.redirect("/admin")
+      }
+      req.flash("success", "Program Details Edited Succesfully!")
+      res.redirect("/admin");
+  });
+});
+
+app.delete("/deleteProgram/:id", middleware.isLevelThree, (req, res) => {
+    const id = req.params.id;
+
+    connection.query('Delete From Program Where program_id = ?', [id], (err, result) => {
+      if (err) {
+        console.log("Error deleting from the database:", err);
+        req.flash("error", "Program could not be deleted!")
+        res.redirect("/admin")
+      }
+      req.flash("success", "Program Details Deleted Successfully!")
+      res.redirect("/admin")
+    });
+});
+
+
+app.get('/admin', middleware.isLevelThree, (req, res) => {
    res.render('admin/admin');
 });
 

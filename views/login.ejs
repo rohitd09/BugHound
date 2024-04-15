@@ -5,7 +5,7 @@
     <div class="container">
         <% if(error && error.length > 0){ %>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                Incorrect Username or password
+                <%= error %>
                 <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
                 <!-- <span aria-hidden="true">&times;</span> -->
             </div>

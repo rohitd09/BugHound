@@ -32,18 +32,22 @@
 <body>
     <div class="container mt-5">
         <h2 class="text-center mb-4">Add Program</h2>
-        <form id="addProgram" method="post" action="/add-program">
+        <form id="addProgram" method="post" action="/addProgram">
             <div class="mb-3">
                 <label for="pName" class="form-label">Program Name:</label>
                 <input type="text" class="form-control" id="pName" name="pName" required>
             </div>
             <div class="mb-3">
-                <label for="pRelease" class="form-label">Program Release:</label>
-                <input type="number" class="form-control" id="pRelease" name="pRelease" min="0" required>
+                <label for="pCategory" class="form-label">Program Category:</label>
+                <input type="text" class="form-control" id="pCategory" name="pCategory" min="0" required>
             </div>
             <div class="mb-3">
                 <label for="pVersion" class="form-label">Program Version:</label>
                 <input type="number" class="form-control" id="pVersion" name="pVersion" min="0" required>
+            </div>
+            <div class="mb-3">
+                <label for="pSummary" class="form-label">Program Summary:</label>
+                <textarea class="form-control" id="pSummary" name="pSummary" min="0" required></textarea>
             </div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary">Submit</button>

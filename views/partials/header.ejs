@@ -40,7 +40,7 @@
                 <a class="nav-link" href="/bugreport">Report a Bug</a>
               </li>
               <% if(currentUser) { %>
-                <% if (currentUser.user_level == "level3") { %>
+                <% if (currentUser.user_level === "3") { %>
                   <li class="nav-item">
                     <a class="nav-link" href="/admin">Admin Panel</a>
                   </li>
