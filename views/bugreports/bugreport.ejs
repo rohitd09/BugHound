@@ -140,12 +140,12 @@
 <body>
 <div class="container">
     <h1>New Bug Report Page</h1>
-    <form action="/bugreport" method="post">
+    <form action="/bugreport" method="post" enctype="multipart/form-data">
         <div class="grid">
             <div>
                 <label for="program">Program:</label>
-                <select id="program" name="program">
-                    <option value="">--Please choose an option--</option>
+                <select id="program" name="program" required>
+                    <option>--Please choose an option--</option>
                     <% programs.forEach((program) => { %>
                         <option value="<%= program.program_id %>"><%= program.program_name %></option>
                     <% }) %>
@@ -153,8 +153,8 @@
             </div>
             <div>
                 <label for="report_type">Report Type:</label>
-                <select id="report_type" name="report_type">
-                    <option value="">--Please choose an option--</option>
+                <select id="report_type" name="report_type" required>
+                    <option>--Please choose an option--</option>
                     <option value="CodingError">Coding Error</option>
                     <option value="DesignIssue">Design Issue</option>
                     <option value="Suggestion">Suggestion</option>
@@ -165,7 +165,7 @@
             </div>
             <div>
                 <label for="severity">Severity:</label>
-                <select id="severity" name="severity">
+                <select id="severity" name="severity" required>
                     <option value="">--Please choose an option--</option>
                     <option value="Fatal">Fatal</option>
                     <option value="Serious">Serious</option>
@@ -174,15 +174,15 @@
             </div>
             <div class="full-width">
                 <label for="problem_summary">Problem Summary:</label>
-                <input type="text" id="problem_summary" name="problem_summary">
+                <input type="text" id="problem_summary" name="problem_summary" required>
             </div>
             <div class="full-width">
                 <label for="problem">Problem:</label>
-                <textarea id="problem" name="problem" rows="4"></textarea>
+                <textarea id="problem" name="problem" rows="4" required></textarea>
             </div>
             <div class="full-width">
                 <label for="suggested_fix">Suggested Fix:</label>
-                <textarea id="suggested_fix" name="suggested_fix" rows="4"></textarea>
+                <textarea id="suggested_fix" name="suggested_fix" rows="4" required></textarea>
             </div>
             <div class="full-width">
                 <label for="attachment">Additional Documents:</label>
@@ -190,8 +190,8 @@
             </div>
             <div>
                 <label for="reported_by">Reported By:</label>
-                <select id="reported_by" name="reported_by">
-                    <option value="">--Please select an option--</option>
+                <select id="reported_by" name="reported_by" required>
+                    <option>--Please select an option--</option>
                     <% employees.forEach((employee) => { %>
                         <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
                     <% }) %>
@@ -199,7 +199,7 @@
             </div>
             <div>
                 <label for="date">Report Date:</label>
-                <input type="date" id="report_date" name="report_date">
+                <input type="date" id="report_date" name="report_date" required>
             </div>
             <div class="checkbox-label">
                 <input type="checkbox" id="reproducible" name="reproducible">

@@ -59,7 +59,20 @@
                 </div>
             </div>
         </nav>
-
+        <div class="container">
+            <% if(error && error.length > 0){ %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+            <% if(success && success.length > 0){ %>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= success %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <% } %>
+          </div>
         <div class="container mt-4">
             <h2 class="mb-4">Program List</h2>
             <table class="table table-striped">
@@ -69,8 +82,9 @@
                     <th>Report Type</th>
                     <th>Reported By</th>
                     <th>Report Date</th>
+                    <th>Attachments</th>
                     <th>Get XML</th>
-                    <th>Action</th>
+                    <% if(currentUser.user_level != 1) { %> <th>Action</th> <% }%>
                 </tr>
                 <% reports.forEach((report) => { %>
                     <tr class="table-light">
@@ -79,8 +93,9 @@
                         <td><%= report.report_type %></td>
                         <td><%= report.reported_by_first_name %> <%= report.reported_by_last_name %></td>
                         <td><%= report.date.toISOString().slice(0, 10) %></td>
+                        <td><a href="/downloadAttachment/<%= report.report_id %>">Download</a></td>
                         <td><a href="/getXML/<%= report.report_id %>">Export</a></td>
-                        <td><a href="/editReport/<%= report.report_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> <% if(currentUser.user_level == "3") { %> | <a href="/deleteReport/<%= report.report_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a> <% } %></td>
+                        <% if(currentUser.user_level != 1) { %> <td><a href="/editReport/<%= report.report_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> <% if(currentUser.user_level == "3") { %> | <a href="/deleteReport/<%= report.report_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a> <% } %></td> <% }%>
                     </tr>
                 <% }) %>
             </table>

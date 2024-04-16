@@ -37,6 +37,18 @@ connection.connect(err => {
   console.log("Connected to MySQL Server Successfully!");
 })
 
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+      cb(null, 'uploads/');
+  },
+  filename: function(req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: 'mysecretkey',
@@ -136,7 +148,7 @@ app.get('/bugreport', middleware.isLoggedIn, (req, res) => {
   })
 });
 
-app.post('/bugreport', (req, res) => {
+app.post('/bugreport', middleware.isLoggedIn, upload.single('attachment'), (req, res) => {
    let {program,
         report_type,
         severity,
@@ -171,7 +183,9 @@ app.post('/bugreport', (req, res) => {
           reproducible = 'off'
         }
 
-        connection.query('INSERT INTO Report (program, report_type, severity, problem_summary, problem, suggested_fix, reported_by, date, reproducible, functional_area, assigned_to, comments, status, priority, resolution, resolution_version, resolved_by, resolved_date, tested_by, test_date, treat_as_deferred) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        const filename = req.file ? req.file.filename : null;
+
+        connection.query('INSERT INTO Report (program, report_type, severity, problem_summary, problem, suggested_fix, reported_by, date, reproducible, functional_area, assigned_to, comments, status, priority, resolution, resolution_version, resolved_by, resolved_date, tested_by, test_date, treat_as_deferred, attachment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
             Number(program),
             report_type,
@@ -193,7 +207,8 @@ app.post('/bugreport', (req, res) => {
             resolved_date,
             tested_by ? Number(tested_by) : null,
             test_date,
-            treat_as_deferred
+            treat_as_deferred,
+            filename
         ], (err, result) => {
             if (err) {
                 console.error(err);
@@ -281,7 +296,7 @@ app.get('/editReport/:id', middleware.isLevelTwo, (req, res) => {
   })
 })
 
-app.put('/editReport/:id', middleware.isLevelTwo, (req, res) => {
+app.put('/editReport/:id', middleware.isLevelTwo, upload.single('attachment'), (req, res) => {
   const id = req.params.id;
   let {program,
     report_type,
@@ -321,7 +336,9 @@ app.put('/editReport/:id', middleware.isLevelTwo, (req, res) => {
       treat_as_deferred = 'off'
     }
 
-    connection.query('Update Report Set program = ?, report_type = ?, severity = ?, problem_summary = ?, problem = ?, suggested_fix = ?, reported_by = ?, date = ?, reproducible = ?, functional_area = ?, assigned_to = ?, comments = ?, status = ?, priority = ?, resolution = ?, resolution_version = ?, resolved_by = ?, resolved_date = ?, tested_by = ?, test_date = ?, treat_as_deferred = ? Where report_id = ?',
+    const filename = req.file ? req.file.filename : null;
+
+    connection.query('Update Report Set program = ?, report_type = ?, severity = ?, problem_summary = ?, problem = ?, suggested_fix = ?, reported_by = ?, date = ?, reproducible = ?, functional_area = ?, assigned_to = ?, comments = ?, status = ?, priority = ?, resolution = ?, resolution_version = ?, resolved_by = ?, resolved_date = ?, tested_by = ?, test_date = ?, treat_as_deferred = ?, attachment = ? Where report_id = ?',
     [
         Number(program),
         report_type,
@@ -344,6 +361,7 @@ app.put('/editReport/:id', middleware.isLevelTwo, (req, res) => {
         tested_by ? Number(tested_by) : null,
         test_date,
         treat_as_deferred,
+        filename,
         id
     ], (err, result) => {
         if (err) {
@@ -426,6 +444,41 @@ app.get('/getXML/:id', middleware.isLoggedIn, (req, res) => {
     res.send(xml);
   });
 });
+
+app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
+  const id = req.params.id;
+
+  connection.query('SELECT attachment FROM Report WHERE report_id = ?', [id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Server Error 500: Could not fetch attachments");
+    }
+
+    if (results.length === 0 || !results[0].attachment) {
+      req.flash("error", "This Report does not have any attachments!");
+      return res.redirect('/viewReport'); 
+    }
+
+    try {
+      const attachmentPath = path.join(__dirname, 'uploads', results[0].attachment);
+      res.download(attachmentPath, results[0].attachment, (err) => {
+        if (err) {
+          console.error(err);
+          req.flash("error", "File could not be downloaded.");
+          return res.redirect('/viewReport');
+        }
+        console.log("Attachments downloaded successfully");
+        req.flash("success", "Attachments Downloaded");
+        res.redirect("/");
+      });
+    } catch (error) {
+      console.error('Error constructing file path:', error);
+      req.flash("error", "Server Error: Could not process the file path.");
+      return res.redirect('/viewReport');
+    }
+  });
+});
+
 
 app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
   res.render('admin/employee/add_employee');
