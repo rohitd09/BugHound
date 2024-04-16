@@ -10,6 +10,8 @@ const flash = require("connect-flash");
 const multer = require("multer")
 const path = require('path');
 const cookie = require("cookie-parser");
+const xml2js = require('xml2js');
+const builder = new xml2js.Builder();
 
 const dotenv = require("dotenv").config();
 
@@ -17,6 +19,8 @@ const app = express();
 
 const middleware = require('./middleware');
 const { pid } = require('process');
+const { error, log } = require('console');
+const { connect } = require('http2');
 
 const port = 3000;
 
@@ -117,12 +121,311 @@ app.use((req, res, next)=>{
 })
 
 app.get('/bugreport', middleware.isLoggedIn, (req, res) => {
-  res.render('bugreports/bugreport'); 
+  connection.query('Select * From User', (err, employees) => {
+    if(err) {
+      console.error(err);
+      return res.status(500).send("Server Error 500: Cannot fetch employee data");
+    }
+    connection.query('Select * From Program', (err, programs) => {
+      if(err){
+        console.error(err);
+        return res.status(500).send("Server Error 500: Cannot fetch program data");
+      }
+      res.render("bugreports/bugreport", { employees: employees, programs: programs })
+    })
+  })
 });
 
 app.post('/bugreport', (req, res) => {
-  res.redirect('/')
+   let {program,
+        report_type,
+        severity,
+        problem_summary,
+        problem,
+        suggested_fix,
+        reported_by,
+        report_date,
+        reproducible,
+        functional_area,
+        assigned_to,
+        comments,
+        status,
+        priority,
+        resolution,
+        resolution_version,
+        resolved_by,
+        resolved_date,
+        tested_by,
+        test_date,
+        treat_as_deferred} = req.body;
+
+        if (resolved_date == ''){
+          resolved_date = null
+        }
+
+        if (test_date == ''){
+          test_date = null
+        }
+
+        if(reproducible == null){
+          reproducible = 'off'
+        }
+
+        connection.query('INSERT INTO Report (program, report_type, severity, problem_summary, problem, suggested_fix, reported_by, date, reproducible, functional_area, assigned_to, comments, status, priority, resolution, resolution_version, resolved_by, resolved_date, tested_by, test_date, treat_as_deferred) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+            Number(program),
+            report_type,
+            severity,
+            problem_summary,
+            problem,
+            suggested_fix,
+            Number(reported_by),
+            report_date,
+            reproducible,
+            functional_area,
+            assigned_to ? Number(assigned_to) : null, 
+            comments,
+            status,
+            priority,
+            resolution,
+            resolution_version,
+            resolved_by ? Number(resolved_by) : null, 
+            resolved_date,
+            tested_by ? Number(tested_by) : null,
+            test_date,
+            treat_as_deferred
+        ], (err, result) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Server Error: 500, Could not insert to database!');
+            }
+            req.flash("success", "Bug Reported Successfully!");
+            res.redirect("/");
+        });
+
 })
+
+app.get('/viewReport', middleware.isLoggedIn, (req, res) => {
+  const sql = `
+      SELECT 
+          r.report_id,
+          p.program_name,
+          r.report_type,
+          r.severity,
+          r.problem_summary,
+          r.problem,
+          r.suggested_fix,
+          r.date,
+          r.reproducible,
+          r.functional_area,
+          r.comments,
+          r.status,
+          r.priority,
+          r.resolution,
+          r.resolution_version,
+          r.resolved_date,
+          r.test_date,
+          r.treat_as_deferred,
+          reported.first_name AS reported_by_first_name,
+          reported.last_name AS reported_by_last_name,
+          assigned.first_name AS assigned_to_first_name,
+          assigned.last_name AS assigned_to_last_name,
+          resolved.first_name AS resolved_by_first_name,
+          resolved.last_name AS resolved_by_last_name,
+          tested.first_name AS tested_by_first_name,
+          tested.last_name AS tested_by_last_name
+      FROM 
+          Report r
+      JOIN 
+          Program p ON r.program = p.program_id
+      LEFT JOIN 
+          User reported ON r.reported_by = reported.user_id
+      LEFT JOIN 
+          User assigned ON r.assigned_to = assigned.user_id
+      LEFT JOIN 
+          User resolved ON r.resolved_by = resolved.user_id
+      LEFT JOIN 
+          User tested ON r.tested_by = tested.user_id
+  `;
+
+  connection.query(sql, (err, reports) => {
+      if (err) {
+          console.error(err);
+          return res.status(500).send('Server Error 500: Cannot fetch Bug Reports');
+      }
+      res.render("bugreports/view_bugreport", { reports: reports });
+  });
+});
+
+app.get('/editReport/:id', middleware.isLevelTwo, (req, res) => {
+  const { id } = req.params;
+  connection.query('Select * From Program', (errP, programs) => {
+    if(errP){
+      console.error(errP);
+      return res.status(500).send('Server Error: 500 | Cannot fetch programs')
+    }
+    connection.query('Select * From User', (errU, employees) => {
+      if(errU){
+        console.error(errU);
+        return res.status(500).send('Server Error: 500 | Cannot fetch users')
+      }
+      connection.query('Select * From Report Where report_id = ?', [id], (err, report) => {
+        if(err){
+          console.error(err);
+          return res.status(500).send('Server Error 500: Cannot Fetch Report')
+        }
+        console.log(report);
+        res.render('bugreports/edit_bugreport', { programs: programs, employees: employees, report: report })
+      })
+    })
+  })
+})
+
+app.put('/editReport/:id', middleware.isLevelTwo, (req, res) => {
+  const id = req.params.id;
+  let {program,
+    report_type,
+    severity,
+    problem_summary,
+    problem,
+    suggested_fix,
+    reported_by,
+    report_date,
+    reproducible,
+    functional_area,
+    assigned_to,
+    comments,
+    status,
+    priority,
+    resolution,
+    resolution_version,
+    resolved_by,
+    resolved_date,
+    tested_by,
+    test_date,
+    treat_as_deferred} = req.body;
+
+    if (resolved_date == ''){
+      resolved_date = null
+    }
+
+    if (test_date == ''){
+      test_date = null
+    }
+
+    if(reproducible == null){
+      reproducible = 'off'
+    }
+
+    if(treat_as_deferred == null){
+      treat_as_deferred = 'off'
+    }
+
+    connection.query('Update Report Set program = ?, report_type = ?, severity = ?, problem_summary = ?, problem = ?, suggested_fix = ?, reported_by = ?, date = ?, reproducible = ?, functional_area = ?, assigned_to = ?, comments = ?, status = ?, priority = ?, resolution = ?, resolution_version = ?, resolved_by = ?, resolved_date = ?, tested_by = ?, test_date = ?, treat_as_deferred = ? Where report_id = ?',
+    [
+        Number(program),
+        report_type,
+        severity,
+        problem_summary,
+        problem,
+        suggested_fix,
+        Number(reported_by),
+        report_date,
+        reproducible,
+        functional_area,
+        assigned_to ? Number(assigned_to) : null, 
+        comments,
+        status,
+        priority,
+        resolution,
+        resolution_version,
+        resolved_by ? Number(resolved_by) : null, 
+        resolved_date,
+        tested_by ? Number(tested_by) : null,
+        test_date,
+        treat_as_deferred,
+        id
+    ], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Server Error: 500, Could not insert to database!');
+        }
+        req.flash("success", "Edited Bug Report Successfully!");
+        res.redirect("/");
+    });
+
+})
+
+app.delete('/deleteReport/:id', middleware.isLevelThree, (req, res) => {
+  const id = req.params.id;
+
+  connection.query('Delete from Report Where report_id = ?', [id], (err, result) => {
+    if(err){
+      console.error(err);
+      return res.status(500).send('Server Error 500: Report Could not be deleted!')
+    }
+    req.flash("success", "Report Deleted Successfully!");
+    res.redirect("/");
+  });
+});
+
+app.get('/getXML/:id', middleware.isLoggedIn, (req, res) => {
+  const id = req.params.id;
+
+  const query = `SELECT 
+    r.report_id,
+    p.program_name,
+    r.report_type,
+    r.severity,
+    r.problem_summary,
+    r.problem,
+    r.suggested_fix,
+    CONCAT(u.first_name, ' ', u.last_name) AS reported_by_name,
+    r.date,
+    r.reproducible,
+    r.functional_area,
+    CONCAT(au.first_name, ' ', au.last_name) AS assigned_to_name,
+    r.comments,
+    r.status,
+    r.priority,
+    r.resolution,
+    r.resolution_version,
+    CONCAT(resu.first_name, ' ', resu.last_name) AS resolved_by_name,
+    r.resolved_date,
+    CONCAT(tu.first_name, ' ', tu.last_name) AS tested_by_name,
+    r.test_date,
+    r.treat_as_deferred
+  FROM 
+    Report r
+  JOIN 
+    Program p ON r.program = p.program_id
+  JOIN 
+    User u ON r.reported_by = u.user_id
+  LEFT JOIN 
+    User au ON r.assigned_to = au.user_id
+  LEFT JOIN 
+    User resu ON r.resolved_by = resu.user_id
+  LEFT JOIN 
+    User tu ON r.tested_by = tu.user_id;
+  `; 
+  connection.query(query, [id], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Server Error 500: Report could not be fetched!');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('No report found with that ID.');
+    }
+
+    const xml = builder.buildObject({ report: results[0] });
+
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Content-Disposition', 'attachment; filename=report.xml');
+    
+    res.send(xml);
+  });
+});
 
 app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
   res.render('admin/employee/add_employee');

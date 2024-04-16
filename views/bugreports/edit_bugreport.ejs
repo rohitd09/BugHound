@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>New Bug Report Entry Page</title>
+    <title>Edit Bug Report Entry Page</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -139,50 +139,55 @@
 </head>
 <body>
 <div class="container">
-    <h1>New Bug Report Page</h1>
-    <form action="/bugreport" method="post">
+    <h1>Edit Bug Report Page</h1>
+    <form action="/editReport/<%= report[0].report_id %>?_method=PUT" method="post">
         <div class="grid">
             <div>
                 <label for="program">Program:</label>
                 <select id="program" name="program">
                     <option value="">--Please choose an option--</option>
-                    <% programs.forEach((program) => { %>
-                        <option value="<%= program.program_id %>"><%= program.program_name %></option>
-                    <% }) %>
+                    <% programs.forEach(function(program) { %>
+                        <% if(report[0].program == program.program_id) { %>
+                            <option value="<%= program.program_id %>" selected><%= program.program_name %></option>
+                        <% } else { %>
+                            <option value="<%= program.program_id %>"><%= program.program_name %></option>
+                        <% } %>
+                    <% }); %>
                 </select>
+                               
             </div>
             <div>
                 <label for="report_type">Report Type:</label>
                 <select id="report_type" name="report_type">
                     <option value="">--Please choose an option--</option>
-                    <option value="CodingError">Coding Error</option>
-                    <option value="DesignIssue">Design Issue</option>
-                    <option value="Suggestion">Suggestion</option>
-                    <option value="Documentation">Documentation</option>
-                    <option value="Hardware">Hardware</option>
-                    <option value="Query">Query</option>
+                    <option value="CodingError" <% if(report[0].report_type == "CodingError") { %> selected <% } %>>Coding Error</option>
+                    <option value="DesignIssue" <% if(report[0].report_type == "DesignIssue") { %> selected <% } %>>Design Issue</option>
+                    <option value="Suggestion" <% if(report[0].report_type == "Suggestion") { %> selected <% } %>>Suggestion</option>
+                    <option value="Documentation" <% if(report[0].report_type == "Documentation") { %> selected <% } %>>Documentation</option>
+                    <option value="Hardware" <% if(report[0].report_type == "Hardware") { %> selected <% } %>>Hardware</option>
+                    <option value="Query" <% if(report[0].report_type == "Query") { %> selected <% } %>>Query</option>
                 </select>
             </div>
             <div>
                 <label for="severity">Severity:</label>
                 <select id="severity" name="severity">
                     <option value="">--Please choose an option--</option>
-                    <option value="Fatal">Fatal</option>
-                    <option value="Serious">Serious</option>
-                    <option value="Minor">Minor</option>
+                    <option value="Fatal" <% if(report[0].severity == "Fatal") { %> selected <% } %>>Fatal</option>
+                    <option value="Serious" <% if(report[0].severity == "Serious") { %> selected <% } %>>Serious</option>
+                    <option value="Minor" <% if(report[0].severity == "Minor") { %> selected <% } %>>Minor</option>
                 </select>
             </div>
             <div class="full-width">
                 <label for="problem_summary">Problem Summary:</label>
-                <input type="text" id="problem_summary" name="problem_summary">
+                <input type="text" id="problem_summary" value="<%= report[0].problem_summary %>" name="problem_summary">
             </div>
             <div class="full-width">
                 <label for="problem">Problem:</label>
-                <textarea id="problem" name="problem" rows="4"></textarea>
+                <textarea id="problem" name="problem" rows="4"><%= report[0].problem %></textarea>
             </div>
             <div class="full-width">
                 <label for="suggested_fix">Suggested Fix:</label>
-                <textarea id="suggested_fix" name="suggested_fix" rows="4"></textarea>
+                <textarea id="suggested_fix" name="suggested_fix" rows="4"><%= report[0].suggested_fix %></textarea>
             </div>
             <div class="full-width">
                 <label for="attachment">Additional Documents:</label>
@@ -193,16 +198,20 @@
                 <select id="reported_by" name="reported_by">
                     <option value="">--Please select an option--</option>
                     <% employees.forEach((employee) => { %>
-                        <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                       <% if(report[0].reported_by == employee.user_id) { %>
+                            <option value="<%= employee.user_id %>" selected><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } else { %>
+                            <option value="<%= employee.user_id %>"<%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } %>
                     <% }) %>
                 </select>
             </div>
             <div>
                 <label for="date">Report Date:</label>
-                <input type="date" id="report_date" name="report_date">
+                <input type="date" id="report_date" value = "<%= report[0].date.toISOString().split('T')[0] %>" name="report_date">
             </div>
             <div class="checkbox-label">
-                <input type="checkbox" id="reproducible" name="reproducible">
+                <input type="checkbox" id="reproducible" name="reproducible" <% if(report[0].reproducible == 'on'){ %> checked <% } %>>
                 <label for="reproducible">Reproducible?</label>
             </div>
             <br>
@@ -210,94 +219,106 @@
             <br>
             <div>
                 <label for="functional_area">Functional Area:</label>
-                <select id="functional_area" name="functional_area" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="functional_area" name="functional_area">
                     <option value="">--Select an option--</option>
-                    <option value="UserInterface">UserInterface</option>
-                    <option value="Database">Database</option>
-                    <option value="Security">Security</option>
-                    <option value="Performance">Performance</option>
-                    <option value="Integration">Integration</option>
+                    <option value="UserInterface" <% if(report[0].functional_area == "UserInterface") { %> selected <% } %>>UserInterface</option>
+                    <option value="Database" <% if(report[0].functional_area == "Database") { %> selected <% } %>>Database</option>
+                    <option value="Security" <% if(report[0].functional_area == "Security") { %> selected <% } %>>Security</option>
+                    <option value="Performance" <% if(report[0].functional_area == "Performance") { %> selected <% } %>>Performance</option>
+                    <option value="Integration" <% if(report[0].functional_area == "Integration") { %> selected <% } %>>Integration</option>
                 </select>
             </div>
             <div>
                 <label for="assigned_to">Assigned To:</label>
-                <select id="assigned_to" name="assigned_to" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="assigned_to" name="assigned_to">
                     <option value="">--Please select an option--</option>
                     <% employees.forEach((employee) => { %>
-                        <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% if(report[0].assigned_to == employee.user_id) { %>
+                            <option value="<%= employee.user_id %>" selected><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } else { %>
+                            <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } %>
                     <% }) %>
                 </select>
             </div>
             <div class="full-width">
                 <label for="comments">Comments:</label>
-                <textarea id="comments" name="comments" rows="4" <%= currentUser.user_level === '1' ? 'readonly' : '' %>></textarea
+                <textarea id="comments" name="comments" rows="4"><%= report[0].comments %></textarea
             </div>
             <div>
                 <label for="status">Status:</label>
-                <select id="status" name="status" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="status" name="status">
                     <option value="">--Please choose an option--</option>
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
+                    <option value="Open" <% if(report[0].status == "Open") { %> selected <% } %>>Open</option>
+                    <option value="Closed" <% if(report[0].status == "Closed") { %> selected <% } %>>Closed</option>
                 </select>
             </div>
             <div>
                 <label for="priority">Priority:</label>
-                <select id="priority" name="priority" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="priority" name="priority">
                     <option value="">--Please choose an option--</option>
-                    <option value="One">1</option>
-                    <option value="Two">2</option>
-                    <option value="Three">3</option>
-                    <option value="Four">4</option>
-                    <option value="Five">5</option>
+                    <option value="One" <% if(report[0].priority == "one") { %> selected <% } %>>1</option>
+                    <option value="Two" <% if(report[0].priority == "Two") { %> selected <% } %>>2</option>
+                    <option value="Three" <% if(report[0].priority == "Three") { %> selected <% } %>>3</option>
+                    <option value="Four" <% if(report[0].priority == "Four") { %> selected <% } %>>4</option>
+                    <option value="Five" <% if(report[0].priority == "Five") { %> selected <% } %>>5</option>
                 </select>
             </div>
             <div>
                 <label for="resolution">Resolution:</label>
-                <select id="resolution" name="resolution" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="resolution" name="resolution">
                     <option value="">--Please choose an option--</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Fixed">Fixed</option>
-                    <option value="Irreproducible">Irreproducible</option>
-                    <option value="Deferred">Deferred</option>
-                    <option value="As Designed">As Designed</option>
-                    <option value="CantBeFixed">Can't Be Fixed</option>
-                    <option value="Withdrawn">Withdrawn By Reporter</option>
-                    <option value="MoreInfo">Need More Info</option>
-                    <option value="Disagree">Disagree With Suggestion</option>
+                    <option value="Pending" <% if(report[0].resolution == "Pending") { %> selected <% } %>>Pending</option>
+                    <option value="Fixed" <% if(report[0].resolution == "Fixed") { %> selected <% } %>>Fixed</option>
+                    <option value="Irreproducible" <% if(report[0].resolution == "Irreproducible") { %> selected <% } %>>Irreproducible</option>
+                    <option value="Deferred" <% if(report[0].resolution == "Deferred") { %> selected <% } %>>Deferred</option>
+                    <option value="As Designed" <% if(report[0].resolution == "As Designed") { %> selected <% } %>>As Designed</option>
+                    <option value="CantBeFixed" <% if(report[0].resolution == "CantBeFixed") { %> selected <% } %>>Can't Be Fixed</option>
+                    <option value="Withdrawn" <% if(report[0].resolution == "Withdrawn") { %> selected <% } %>>Withdrawn By Reporter</option>
+                    <option value="MoreInfo" <% if(report[0].resolution == "MoreInfo") { %> selected <% } %>>Need More Info</option>
+                    <option value="Disagree" <% if(report[0].resolution == "Disagree") { %> selected <% } %>>Disagree With Suggestion</option>
                 </select>
             </div>
             <div>
                 <label for="resolution_version">Resolution Version:</label>
-                <input type="text" id="resolution_version" name="resolution_version" <%= currentUser.user_level === '1' ? 'readonly' : '' %>>
+                <input type="text" id="resolution_version" value="<%= report[0].resolution_version %>" name="resolution_version">
             </div>
             <div>
                 <label for="resolved_by">Resolved By:</label>
-                <select id="resolved_by" name="resolved_by" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="resolved_by" name="resolved_by">
                     <option value="">--Please select an option--</option>
                     <% employees.forEach((employee) => { %>
-                        <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% if(report[0].resolved_by == employee.user_id) { %>
+                            <option value="<%= employee.user_id %>" selected><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } else { %>
+                            <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } %>
                     <% }) %>
                 </select>
             </div>
             <div>
                 <label for="resolved_date">Resolved Date:</label>
-                <input type="date" id="resolved_date" name="resolved_date" <%= currentUser.user_level === '1' ? 'readonly' : '' %>>
+                <input type="date" id="resolved_date" name="resolved_date" value = "<%= report[0].resolved_date.toISOString().split('T')[0] %>">
             </div>
             <div>
                 <label for="tested_by">Tested By:</label>
-                <select id="tested_by" name="tested_by" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <select id="tested_by" name="tested_by">
                     <option value="">--Please select an option--</option>
                     <% employees.forEach((employee) => { %>
-                        <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% if(report[0].tested_by == employee.user_id) { %>
+                            <option value="<%= employee.user_id %>" selected><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } else { %>
+                            <option value="<%= employee.user_id %>"><%= employee.first_name %> <%= employee.middle_name %> <%= employee.last_name %></option>
+                        <% } %>
                     <% }) %>
                 </select>
             </div>
             <div>
                 <label for="test_date">Test Date:</label>
-                <input type="date" id="test_date" name="test_date" <%= currentUser.user_level === '1' ? 'readonly' : '' %>>
+                <input type="date" id="test_date" name="test_date" value = "<%= report[0].test_date.toISOString().split('T')[0] %>">
             </div>
             <div class="checkbox-label">
-                <input type="checkbox" id="treat_as_deferred" name="treat_as_deferred" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
+                <input type="checkbox" id="treat_as_deferred" name="treat_as_deferred" <% if(report[0].reproducible == 'on'){ %> checked <% } %>>
                 <label for="treat_as_deferred">Treat as Deferred?</label>
             </div>
         </div>
