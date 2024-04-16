@@ -140,7 +140,7 @@
 <body>
 <div class="container">
     <h1>Edit Bug Report Page</h1>
-    <form action="/editReport/<%= report[0].report_id %>?_method=PUT" method="post">
+    <form action="/editReport/<%= report[0].report_id %>?_method=PUT" method="post" enctype="multipart/form-data">
         <div class="grid">
             <div>
                 <label for="program">Program:</label>

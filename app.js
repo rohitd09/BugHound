@@ -336,42 +336,49 @@ app.put('/editReport/:id', middleware.isLevelTwo, upload.single('attachment'), (
       treat_as_deferred = 'off'
     }
 
-    const filename = req.file ? req.file.filename : null;
-
-    connection.query('Update Report Set program = ?, report_type = ?, severity = ?, problem_summary = ?, problem = ?, suggested_fix = ?, reported_by = ?, date = ?, reproducible = ?, functional_area = ?, assigned_to = ?, comments = ?, status = ?, priority = ?, resolution = ?, resolution_version = ?, resolved_by = ?, resolved_date = ?, tested_by = ?, test_date = ?, treat_as_deferred = ?, attachment = ? Where report_id = ?',
-    [
-        Number(program),
-        report_type,
-        severity,
-        problem_summary,
-        problem,
-        suggested_fix,
-        Number(reported_by),
-        report_date,
-        reproducible,
-        functional_area,
-        assigned_to ? Number(assigned_to) : null, 
-        comments,
-        status,
-        priority,
-        resolution,
-        resolution_version,
-        resolved_by ? Number(resolved_by) : null, 
-        resolved_date,
-        tested_by ? Number(tested_by) : null,
-        test_date,
-        treat_as_deferred,
-        filename,
-        id
-    ], (err, result) => {
+    connection.query('SELECT attachment FROM Report WHERE report_id = ?', [id], (err, rows) => {
+      if (err){
+        console.error(err);
+        return res.status(500).send('Server Error: 500, Could not retrieve existing data!');
+      }
+      const existingFilename = rows[0].attachment;
+      const filename = req.file ? req.file.filename : existingFilename;
+      connection.query('Update Report Set program = ?, report_type = ?, severity = ?, problem_summary = ?, problem = ?, suggested_fix = ?, reported_by = ?, date = ?, reproducible = ?, functional_area = ?, assigned_to = ?, comments = ?, status = ?, priority = ?, resolution = ?, resolution_version = ?, resolved_by = ?, resolved_date = ?, tested_by = ?, test_date = ?, treat_as_deferred = ?, attachment = ? Where report_id = ?',
+      [
+          Number(program),
+          report_type,
+          severity,
+          problem_summary,
+          problem,
+          suggested_fix,
+          Number(reported_by),
+          report_date,
+          reproducible,
+          functional_area,
+          assigned_to ? Number(assigned_to) : null, 
+          comments,
+          status,
+          priority,
+          resolution,
+          resolution_version,
+          resolved_by ? Number(resolved_by) : null, 
+          resolved_date,
+          tested_by ? Number(tested_by) : null,
+          test_date,
+          treat_as_deferred,
+          filename,
+          id
+      ], (err, result) => {
         if (err) {
-            console.error(err);
-            return res.status(500).send('Server Error: 500, Could not insert to database!');
-        }
-        req.flash("success", "Edited Bug Report Successfully!");
-        res.redirect("/");
-    });
-
+          console.error("Database error on update:", err);
+          return res.status(500).send('Server Error: Could not update database!');
+          } else {
+              console.log("Update result:", result);
+          }
+          req.flash("success", "Edited Bug Report Successfully!");
+          res.redirect("/");
+      });
+    })
 })
 
 app.delete('/deleteReport/:id', middleware.isLevelThree, (req, res) => {
@@ -451,33 +458,26 @@ app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
   connection.query('SELECT attachment FROM Report WHERE report_id = ?', [id], (err, results) => {
     if (err) {
       console.error(err);
-      return res.status(500).send("Server Error 500: Could not fetch attachments");
+      req.flash("error", "Server Error 500: Could not fetch attachments");
+      return res.redirect('/viewReport');
     }
 
     if (results.length === 0 || !results[0].attachment) {
       req.flash("error", "This Report does not have any attachments!");
-      return res.redirect('/viewReport'); 
-    }
-
-    try {
-      const attachmentPath = path.join(__dirname, 'uploads', results[0].attachment);
-      res.download(attachmentPath, results[0].attachment, (err) => {
-        if (err) {
-          console.error(err);
-          req.flash("error", "File could not be downloaded.");
-          return res.redirect('/viewReport');
-        }
-        console.log("Attachments downloaded successfully");
-        req.flash("success", "Attachments Downloaded");
-        res.redirect("/");
-      });
-    } catch (error) {
-      console.error('Error constructing file path:', error);
-      req.flash("error", "Server Error: Could not process the file path.");
       return res.redirect('/viewReport');
     }
+
+    const attachmentPath = path.join(__dirname, 'uploads', results[0].attachment);
+    res.download(attachmentPath, results[0].attachment, (downloadError) => {
+      if (downloadError) {
+        console.error(downloadError);
+      } else {
+        console.log("Attachments downloaded successfully");
+      }
+    });
   });
 });
+
 
 
 app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
@@ -552,8 +552,14 @@ app.put("/editEmployee/:id", middleware.isLevelThree, (req, res) => {
   });
 });
 
-app.delete("/deleteEmployee/:id", middleware.isLevelThree, (req, res) => {
+app.delete("/deleteEmployee/:user_id/:id", middleware.isLevelThree, (req, res) => {
     const id = req.params.id;
+    const user_id = req.params.user_id;
+
+    if(id == user_id){
+      req.flash("error", "You cannot delete your own account!")
+      return res.redirect("/admin")
+    }
 
     connection.query('Delete From User Where user_id = ?', [id], (err, result) => {
       if (err) {
