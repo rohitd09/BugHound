@@ -144,12 +144,12 @@
         <div class="grid">
             <div>
                 <label for="program">Program:</label>
-                <select id="program" name="program" required>
+                <select id="program" name="program" required onchange="updateFunctionalAreas();">
                     <option>--Please choose an option--</option>
                     <% programs.forEach((program) => { %>
                         <option value="<%= program.program_id %>"><%= program.program_name %></option>
                     <% }) %>
-                </select>
+                </select>                
             </div>
             <div>
                 <label for="report_type">Report Type:</label>
@@ -212,11 +212,6 @@
                 <label for="functional_area">Functional Area:</label>
                 <select id="functional_area" name="functional_area" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
                     <option value="">--Select an option--</option>
-                    <option value="UserInterface">UserInterface</option>
-                    <option value="Database">Database</option>
-                    <option value="Security">Security</option>
-                    <option value="Performance">Performance</option>
-                    <option value="Integration">Integration</option>
                 </select>
             </div>
             <div>
@@ -308,5 +303,27 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.getElementById('program').addEventListener('change', function() {
+        var programId = this.value; 
+        var functionalAreaDropdown = document.getElementById('functional_area'); 
+        functionalAreaDropdown.innerHTML = '<option value="">--Select an option--</option>';  
+    
+        if (!programId) return;  
+    
+        fetch(`/getFunctionalAreas/${programId}`)  
+        .then(response => response.json())
+        .then(areas => {
+            areas.forEach(area => {
+                let option = new Option(area.area_name, area.area_id); 
+                functionalAreaDropdown.add(option); 
+            });
+        })
+        .catch(error => console.error('Error fetching functional areas:', error));
+    });
+</script>
+    
+    
 </body>
 </html>
