@@ -1,0 +1,269 @@
+<!--!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Report Details</title>
+    <style>
+             body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #EAECEF;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #30475E;
+            margin-bottom: 30px;
+        }
+        .detail-section {
+            background: #F1F3F4;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-left: 5px solid #F05454;
+            border-radius: 5px;
+            transition: all 0.3s ease-in-out;
+        }
+        .detail-section:hover {
+            background: #F0F0F0;
+            border-left: 5px solid #30475E;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .detail-section h2 {
+            color: #30475E;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .detail-item strong {
+            color: #222831;
+            font-weight: 600;
+            display: block; /* Make labels block for better readability */
+        }
+        .detail-item span {
+            color: #6C757D; /* Muted text for content */
+            margin-left: 5px;
+        }
+        .back-button {
+            display: block;
+            width: max-content;
+            padding: 10px 20px;
+            margin: 20px auto;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 5px;
+            background-color: #F05454;
+            color: #FFF;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease-in-out;
+        }
+        .back-button:hover {
+            background-color: #30475E;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+   
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bug Report Details</h1>
+        <div class="detail-section">
+            <h2>General Information</h2>
+            <div class="detail-item"><strong>Program:</strong> <%= report.program_name %></div>
+            <div class="detail-item"><strong>Report Type:</strong> <%= report.report_type %></div>
+            <div class="detail-item"><strong>Severity:</strong> <%= report.severity %></div>
+            <div class="detail-item"><strong>Reproducible?:</strong> <%= report.reproducible %></div>
+        </div>
+        
+        <div class="detail-section">
+            <h2>Problem Details</h2>
+            <div class="detail-item"><strong>Summary:</strong> <%= report.problem_summary %></div>
+            <div class="detail-item"><strong>Description:</strong> <%= report.problem %></div>
+            <div class="detail-item"><strong>Functional Areas:</strong> <%= report.functional_area %></div>
+            <div class="detail-item"><strong>Suggested Fix:</strong> <%= report.suggested_fix %></div>
+            <div class="detail-item"><strong>Comments:</strong> <%= report.comments %></div>
+        </div>
+        
+        <div class="detail-section">
+            <h2>Resolution Details</h2>
+            <div class="detail-item"><strong>Status:</strong> <%= report.status %></div>
+            <div class="detail-item"><strong>Priority:</strong> <%= report.priority %></div>
+            <div class="detail-item"><strong>Resolution:</strong> <%= report.resolution %></div>
+            <div class="detail-item"><strong>Resolution Version:</strong> <%= report.resolution_version %></div>
+        </div>
+        
+        <div class="detail-section">
+            <h2>Personnel</h2>
+            <div class="detail-item"><strong>Assigned To:</strong> <%= report.assigned_first_name %> <%= report.assigned_last_name %></div>
+            <div class="detail-item"><strong>Resolved By:</strong> <%= report.resolved_first_name %> <%= report.resolved_last_name %></div>
+            <div class="detail-item"><strong>Tested By:</strong> <%= report.tested_first_name %> <%= report.tested_last_name %></div>
+        </div>
+        
+        <div class="detail-section">
+            <h2>Dates</h2>
+            <div class="detail-item"><strong>Report Date:</strong> <%= report.date %></div>
+            <div class="detail-item"><strong>Resolution Date:</strong> <%= report.resolved_date %></div>
+            <div class="detail-item"><strong>Test Date:</strong> <%= report.test_date %></div>
+        </div>
+        
+        <div class="back-button" onclick="window.location.href='/viewReport';">Back to List</div>
+       
+    </div>
+</body>
+</html-->
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bug Report Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(90deg, #f9f98f, #676767);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .detail-item {
+            background-color: #f9fafb;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #5D647B;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .detail-item strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .detail-item:not(strong) {
+            color: #4a5568;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            background: #5D647B;
+            color: #ffffff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .back-button:hover {
+            background: #4e5571;
+        }
+        .detail-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+        .detail-section h2 {
+            font-size: 1.25rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            padding-bottom: 0.25rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .detail-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .detail-flex > div {
+            flex: 1 1 200px;
+        }
+        .text-muted {
+            color: #a0aec0;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bug Report Details</h1>
+        <div class="detail-container">
+            <div class="detail-section">
+                <h2>Report Information</h2>
+                <div class="detail-flex">
+                    <div class="detail-item"><strong>Program:</strong> <%= report.program_name %></div>
+                    <div class="detail-item"><strong>Report Type:</strong> <%= report.report_type %></div>
+                    <div class="detail-item"><strong>Severity:</strong> <%= report.severity %></div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h2>Description</h2>
+                <div class="detail-item"><strong>Summary:</strong> <%= report.problem_summary %></div>
+                <div class="detail-item"><strong>Problem:</strong> <%= report.problem %></div>
+                <div class="detail-item"><strong>Suggested Fix:</strong> <%= report.suggested_fix %></div>
+                <div class="detail-item"><strong>Comments:</strong> <%= report.comments %></div>
+                <div class="detail-item"><strong>Functional Area:</strong> <%= report.functional_area %></div>
+            </div>
+            <div class="detail-section">
+                <h2>Resolution</h2>
+                <div class="detail-flex">
+                    <div class="detail-item"><strong>Status:</strong> <%= report.status %></div>
+                    <div class="detail-item"><strong>Priority:</strong> <%= report.priority %></div>
+                    <div class="detail-item"><strong>Resolution:</strong> <%= report.resolution %></div>
+                    <div class="detail-item"><strong>Resolution Version:</strong> <%= report.resolution_version %></div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h2>Personnel</h2>
+                <div class="detail-flex">
+                    <div class="detail-item"><strong>Assigned To:</strong> <%= report.assigned_first_name %> <%= report.assigned_last_name %></div>
+                    <div class="detail-item"><strong>Resolved By:</strong> <%= report.resolved_first_name %> <%= report.resolved_last_name %></div>
+                    <div class="detail-item"><strong>Tested By:</strong> <%= report.tested_first_name %> <%= report.tested_last_name %></div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h2>Time Frames</h2>
+                <div class="detail-flex">
+                    <div class="detail-item"><strong>Report Date:</strong> <%= report.date %></div>
+                    <div class="detail-item"><strong>Resolution Date:</strong> <%= report.resolved_date %></div>
+                    <div class="detail-item"><strong>Tested Date:</strong> <%= report.test_date %></div>
+                </div>
+            </div>
+            <div class="button-container">
+                <a href="/viewReport" class="back-button">Back to List</a>
+            </div>
+        </div>
+       
+    </div>
+</body>
+</html>

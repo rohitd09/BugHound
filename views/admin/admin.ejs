@@ -60,6 +60,9 @@ input[type=submit] {
   height: 100vh;
   flex-direction: column;
 }
+body{
+                background: linear-gradient(90deg, #f9f98f, #676767);
+            }
 
         body::before {
             content: '';
@@ -68,14 +71,14 @@ input[type=submit] {
             left: 0;
             right: 0;
             bottom: 0;
-            background-image: url('lb.jpg');
-            background-size: 60%;
+            background-image: url('lb.png');
+            background-size: 30%;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.2; 
+            opacity: 0.7; 
             z-index: -1; /* Place the background behind the content */
         }
-
+       
 
 
 
@@ -93,8 +96,8 @@ label {
 </head>
 
 <body>
-    <div class="container mt-5 text-center">
-        <h1>Admin Dashboard</h1>
+    <div class="container mt-5 text-left">
+        <h1 >Admin Dashboard</h1>
         <div class="container">
           <% if(error && error.length > 0){ %>
               <div class="alert alert-danger alert-dismissible fade show" role="alert">

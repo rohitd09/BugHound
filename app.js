@@ -28,8 +28,7 @@ const connection = mysql.createConnection({
   host: process.env.DATABASE_HOST,
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE,
-  connectionLimit: 10
+  database: process.env.DATABASE
 })
 
 connection.connect(err => {
@@ -479,12 +478,56 @@ app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
 });
 
 
+app.get('/viewReport/:id', (req, res) => {
+  const reportId = req.params.id;
 
-app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
+  
+  const query = 
+  `SELECT 
+    r.*, 
+    p.program_name, 
+    a.first_name AS assigned_first_name, a.last_name AS assigned_last_name,
+    t.first_name AS tested_first_name, t.last_name AS tested_last_name,
+    re.first_name AS resolved_first_name, re.last_name AS resolved_last_name
+  FROM Report r
+  LEFT JOIN Program p ON r.program = p.program_id
+  LEFT JOIN User a ON r.assigned_to = a.user_id
+  LEFT JOIN User t ON r.tested_by = t.user_id
+  LEFT JOIN User re ON r.resolved_by = re.user_id
+  WHERE r.report_id = ?`;
+
+
+  connection.query(query, [reportId], (err, result) => {
+    if (err) {
+      console.error("Error fetching report:", err);
+      return res.status(500).send("Database error");
+    }
+    if (result.length > 0) {
+      // Pass the report data to the EJS template
+      res.render('bugreports/bugReportDetails', { report: result[0] });
+    } else {
+      res.status(404).send('Report not found');
+    }
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.get('/addEmployee', (req, res) => {
   res.render('admin/employee/add_employee');
 });
 
-app.post("/addEmployee", middleware.isLevelThree, (req, res) => {
+app.post("/addEmployee", (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -645,7 +688,7 @@ app.delete("/deleteProgram/:id", middleware.isLevelThree, (req, res) => {
 });
 
 
-app.get('/admin', middleware.isLevelThree, (req, res) => {
+app.get('/admin', (req, res) => {
    res.render('admin/admin');
 });
 

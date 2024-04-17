@@ -11,6 +11,9 @@
                 height: 100%;
                 margin: 0;
             }
+            body{
+                background: linear-gradient(90deg, #f9f98f, #676767);
+            }
 
             body::before {
                 content: '';
@@ -19,11 +22,11 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-image: url('lb.jpg');
-                background-size: 60%;
+                background-image: url('lb.png');
+                background-size: 30%;
                 background-position: center;
                 background-repeat: no-repeat;
-                opacity: 0.2; 
+                opacity: 0.7; 
                 z-index: -1; /* Place the background behind the content */
             }
         </style>
@@ -31,7 +34,7 @@
     </head>
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Employee Manager</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

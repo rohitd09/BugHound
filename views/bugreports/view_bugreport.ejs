@@ -12,6 +12,10 @@
             body, html {
                 height: 100%;
                 margin: 0;
+                
+            }
+            body{
+                background: linear-gradient(90deg, #f9f98f, #676767);
             }
 
             body::before {
@@ -21,15 +25,15 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-image: url('lb.jpg');
-                background-size: 60%;
+                background-image: url('lb.png');
+                background-size: 30%;
                 background-position: center;
                 background-repeat: no-repeat;
-                opacity: 0.2; 
+                opacity: 0.7; 
                 z-index: -1; /* Place the background behind the content */
             }
             .icon-pencil i {
-                color: blue; /* Sets the pencil icon color to gray */
+                color: rgb(0, 38, 255); /* Sets the pencil icon color to gray */
             }
 
             .icon-trash i {
@@ -41,7 +45,7 @@
     </head>
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Bug Reports</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +78,7 @@
             <% } %>
           </div>
         <div class="container mt-4">
-            <h2 class="mb-4">Program List</h2>
+            <h2 class="mb-4 text-center">Bugs List</h2>
             <table class="table table-striped">
                 <tr class="table-dark">
                     <th>Report Id</th>
@@ -82,6 +86,7 @@
                     <th>Report Type</th>
                     <th>Reported By</th>
                     <th>Report Date</th>
+                    <th>Bug Details</th>
                     <th>Attachments</th>
                     <th>Get XML</th>
                     <% if(currentUser.user_level != 1) { %> <th>Action</th> <% }%>
@@ -93,6 +98,7 @@
                         <td><%= report.report_type %></td>
                         <td><%= report.reported_by_first_name %> <%= report.reported_by_last_name %></td>
                         <td><%= report.date.toISOString().slice(0, 10) %></td>
+                        <td><a href="/viewReport/<%= report.report_id %>">View Details</a></td>
                         <td><a href="/downloadAttachment/<%= report.report_id %>">Download</a></td>
                         <td><a href="/getXML/<%= report.report_id %>">Export</a></td>
                         <% if(currentUser.user_level != 1) { %> <td><a href="/editReport/<%= report.report_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> <% if(currentUser.user_level == "3") { %> | <a href="/deleteReport/<%= report.report_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a> <% } %></td> <% }%>
