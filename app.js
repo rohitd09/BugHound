@@ -308,7 +308,7 @@ app.get('/editReport/:id', middleware.isLevelTwo, (req, res) => {
   })
 })
 
-app.get('/viewReport/:id', (req, res) => {
+app.get('/viewReport/:id', middleware.isLoggedIn, (req, res) => {
   const reportId = req.params.id;
   const query = `
     SELECT 
@@ -529,7 +529,7 @@ app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
   });
 });
 
-app.get('/addArea', (req, res) => {
+app.get('/addArea', middleware.isLevelThree, (req, res) => {
   connection.query('Select * From Program', (err, programs) => {
     if(err){
       console.error(err);
@@ -571,7 +571,7 @@ app.get('/viewArea', (req, res) => {
   });
 });
 
-app.get('/editArea/:id', (req, res) => {
+app.get('/editArea/:id', middleware.isLevelThree, (req, res) => {
   let { id } = req.params;
   connection.query('Select * From Program', (errP, programs) => {
     if(errP){
@@ -589,7 +589,7 @@ app.get('/editArea/:id', (req, res) => {
   })
 })
 
-app.put('/editArea/:id', (req, res) => {
+app.put('/editArea/:id', middleware.isLevelThree,(req, res) => {
   let { id } = req.params;
   let { area_name, program } = req.body;
   connection.query('Update Area Set area_name = ?, program = ?', [area_name, program], (err, result) => {
@@ -602,7 +602,7 @@ app.put('/editArea/:id', (req, res) => {
   })
 })
 
-app.delete('/deleteArea/:id', (req, res) => {
+app.delete('/deleteArea/:id', middleware.isLevelThree,(req, res) => {
   let { id } = req.params;
   connection.query('Delete From Area where area_id = ?', [id], (err, result) => {
     if(err){
@@ -614,11 +614,11 @@ app.delete('/deleteArea/:id', (req, res) => {
   })
 })
 
-app.get('/addEmployee', (req, res) => {
+app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
   res.render('admin/employee/add_employee');
 });
 
-app.post("/addEmployee", (req, res) => {
+app.post("/addEmployee", middleware.isLevelThree, (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -699,7 +699,7 @@ app.delete("/deleteEmployee/:user_id/:id", middleware.isLevelThree, (req, res) =
       if (err) {
         console.log("Error deleting from the database:", err);
         req.flash("error", "Employee could not be deleted!")
-        res.redirect("/admin")
+        return res.redirect("/admin")
       }
       req.flash("success", "Employee Details Deleted Successfully!")
       res.redirect("/admin")
@@ -771,7 +771,7 @@ app.delete("/deleteProgram/:id", middleware.isLevelThree, (req, res) => {
       if (err) {
         console.log("Error deleting from the database:", err);
         req.flash("error", "Program could not be deleted!")
-        res.redirect("/admin")
+        return res.redirect("/admin")
       }
       req.flash("success", "Program Details Deleted Successfully!")
       res.redirect("/admin")
@@ -779,7 +779,7 @@ app.delete("/deleteProgram/:id", middleware.isLevelThree, (req, res) => {
 });
 
 
-app.get('/admin', (req, res) => {
+app.get('/admin', middleware.isLevelThree, (req, res) => {
    res.render('admin/admin');
 });
 
