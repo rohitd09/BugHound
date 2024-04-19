@@ -27,6 +27,3 @@ Create Table Report(
     test_date date,
     treat_as_deferred varchar(3)
 )
-ALTER TABLE Report ADD COLUMN attachment varchar(50);
-SELECT * FROM Report;
-DESCRIBE Report;

@@ -3,10 +3,8 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>View Program</title>
-        
+        <title>Add Area</title>
         <!-- Bootstrap 5 CSS -->
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
         <style>
             body, html {
@@ -16,7 +14,6 @@
             body{
                 background: linear-gradient(90deg, #f9f98f, #676767);
             }
-
 
             body::before {
                 content: '';
@@ -32,14 +29,6 @@
                 opacity: 0.7; 
                 z-index: -1; /* Place the background behind the content */
             }
-            .icon-pencil i {
-                color: blue; /* Sets the pencil icon color to gray */
-            }
-
-            .icon-trash i {
-                color: red; /* Sets the trash icon color to red */
-            }
-
         </style>
 
     </head>
@@ -47,7 +36,7 @@
 
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Program Manager</a>
+                <a class="navbar-brand" href="#">Area Manager</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -55,9 +44,6 @@
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
                             <a class="nav-link active" href="/">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin" class="nav-link"><i class="fa fa-angle-left" aria-hidden="true"></i>Go Back</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/logout">Logout</a>
@@ -68,25 +54,25 @@
         </nav>
 
         <div class="container mt-4">
-            <h2 class="mb-4 text-center">Program List</h2>
-            <table class="table table-striped">
-                <tr class="table-dark">
-                    <th>Program Id</th>
-                    <th>Program Name</th>
-                    <th>Program Category</th>
-                    <th>Program Version</th>
-                    <th>Action</th>
-                </tr>
-                <% programs.forEach((program) => { %>
-                    <tr class="table-light">
-                        <td><%= program.program_id %></td>
-                        <td><%= program.program_name %></td>
-                        <td><%= program.program_category %></td>
-                        <td><%= program.program_version %></td>
-                        <td><a href="/editProgram/<%= program.program_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> | <a href="/deleteProgram/<%= program.program_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
-                    </tr>
-                <% }) %>
-            </table>
+            <h2 class="mb-4">Add New Area</h2>
+            <form action="/addArea" method="post">
+                <div class="mb-3">
+                    <label for="area_name" class="form-label">Area Name</label>
+                    <input type="text" class="form-control" id="area_name" name="area_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="program" class="form-label">Program</label>
+                    <select class="form-select" id="program" name="program" required>
+                        <option value="">Select a Program</option>
+                        <% programs.forEach((program) => { %>
+                            <option value="<%= program.program_id %>"><%= program.program_name %>, <%= program.program_category %>, <%= program.program_version %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/admin" class="btn btn-danger">Cancel</a>
+                <button type="reset" class="btn btn-warning">Reset</button>
+            </form>
         </div>
 
         <script src="js/register.js"></script>

@@ -27,9 +27,8 @@ const port = 3000;
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'root',
-  database: 'bughound',
-  connectionLimit: 10
+  password: '2000',
+  database: 'bughound'
 })
 
 connection.connect(err => {
@@ -148,6 +147,18 @@ app.get('/bugreport', middleware.isLoggedIn, (req, res) => {
   })
 });
 
+app.get('/getFunctionalAreas/:programId', (req, res) => {
+  const programId = req.params.programId;
+  connection.query('SELECT * FROM Area WHERE program = ?', [programId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error fetching functional areas');
+    }
+    res.json(results);
+  });
+});
+
+
 app.post('/bugreport', middleware.isLoggedIn, upload.single('attachment'), (req, res) => {
    let {program,
         report_type,
@@ -222,45 +233,48 @@ app.post('/bugreport', middleware.isLoggedIn, upload.single('attachment'), (req,
 
 app.get('/viewReport', middleware.isLoggedIn, (req, res) => {
   const sql = `
-      SELECT 
-          r.report_id,
-          p.program_name,
-          r.report_type,
-          r.severity,
-          r.problem_summary,
-          r.problem,
-          r.suggested_fix,
-          r.date,
-          r.reproducible,
-          r.functional_area,
-          r.comments,
-          r.status,
-          r.priority,
-          r.resolution,
-          r.resolution_version,
-          r.resolved_date,
-          r.test_date,
-          r.treat_as_deferred,
-          reported.first_name AS reported_by_first_name,
-          reported.last_name AS reported_by_last_name,
-          assigned.first_name AS assigned_to_first_name,
-          assigned.last_name AS assigned_to_last_name,
-          resolved.first_name AS resolved_by_first_name,
-          resolved.last_name AS resolved_by_last_name,
-          tested.first_name AS tested_by_first_name,
-          tested.last_name AS tested_by_last_name
-      FROM 
-          Report r
-      JOIN 
-          Program p ON r.program = p.program_id
-      LEFT JOIN 
-          User reported ON r.reported_by = reported.user_id
-      LEFT JOIN 
-          User assigned ON r.assigned_to = assigned.user_id
-      LEFT JOIN 
-          User resolved ON r.resolved_by = resolved.user_id
-      LEFT JOIN 
-          User tested ON r.tested_by = tested.user_id
+    SELECT 
+    r.report_id,
+    p.program_name,
+    a.area_name,
+    r.report_type,
+    r.severity,
+    r.problem_summary,
+    r.problem,
+    r.suggested_fix,
+    r.date,
+    r.reproducible,
+    r.functional_area,
+    r.comments,
+    r.status,
+    r.priority,
+    r.resolution,
+    r.resolution_version,
+    r.resolved_date,
+    r.test_date,
+    r.treat_as_deferred,
+    reported.first_name AS reported_by_first_name,
+    reported.last_name AS reported_by_last_name,
+    assigned.first_name AS assigned_to_first_name,
+    assigned.last_name AS assigned_to_last_name,
+    resolved.first_name AS resolved_by_first_name,
+    resolved.last_name AS resolved_by_last_name,
+    tested.first_name AS tested_by_first_name,
+    tested.last_name AS tested_by_last_name
+  FROM 
+    Report r
+  JOIN 
+    Program p ON r.program = p.program_id
+  LEFT JOIN 
+    Area a ON p.program_id = a.program 
+  LEFT JOIN 
+    User reported ON r.reported_by = reported.user_id
+  LEFT JOIN 
+    User assigned ON r.assigned_to = assigned.user_id
+  LEFT JOIN 
+    User resolved ON r.resolved_by = resolved.user_id
+  LEFT JOIN 
+    User tested ON r.tested_by = tested.user_id;
   `;
 
   connection.query(sql, (err, reports) => {
@@ -286,15 +300,52 @@ app.get('/editReport/:id', middleware.isLevelTwo, (req, res) => {
       }
       connection.query('Select * From Report Where report_id = ?', [id], (err, report) => {
         if(err){
-          console.error(err);
           return res.status(500).send('Server Error 500: Cannot Fetch Report')
         }
-        console.log(report);
         res.render('bugreports/edit_bugreport', { programs: programs, employees: employees, report: report })
       })
     })
   })
 })
+
+app.get('/viewReport/:id', middleware.isLoggedIn, (req, res) => {
+  const reportId = req.params.id;
+  const query = `
+    SELECT 
+      r.*, 
+      p.program_name, 
+      a.area_name,
+      u1.first_name AS assigned_first_name, u1.last_name AS assigned_last_name,
+      u2.first_name AS tested_first_name, u2.last_name AS tested_last_name,
+      u3.first_name AS resolved_first_name, u3.last_name AS resolved_last_name
+    FROM 
+      Report r
+    LEFT JOIN 
+      Program p ON r.program = p.program_id
+    LEFT JOIN 
+      Area a ON p.program_id = a.program
+    LEFT JOIN 
+      User u1 ON r.assigned_to = u1.user_id
+    LEFT JOIN 
+      User u2 ON r.tested_by = u2.user_id
+    LEFT JOIN 
+      User u3 ON r.resolved_by = u3.user_id
+    WHERE 
+      r.report_id = ?`;
+
+  connection.query(query, [reportId], (err, result) => {
+    if (err) {
+      console.error("Error fetching report:", err);
+      return res.status(500).send("Database error");
+    }
+    if (result.length > 0) {
+      res.render('bugreports/bugReportDetails', { report: result[0] });
+    } else {
+      res.status(404).send('Report not found');
+    }
+  });
+});
+
 
 app.put('/editReport/:id', middleware.isLevelTwo, upload.single('attachment'), (req, res) => {
   const id = req.params.id;
@@ -452,6 +503,71 @@ app.get('/getXML/:id', middleware.isLoggedIn, (req, res) => {
   });
 });
 
+app.get('/exportEmployeesAscii', middleware.isLoggedIn, (req, res) => {
+  const query = `SELECT user_id, first_name, middle_name, last_name, address, email, dob, user_level FROM User`;
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).send('Internal Server Error');
+      }
+      
+      // Prepare CSV content
+      const header = "user_id,first_name,middle_name,last_name,address,email,dob,user_level\n";
+      const data = results.map(user => {
+         
+          const formattedAddress = `"${user.address.replace(/"/g, '""')}"`;
+          return `${user.user_id},${user.first_name},${user.middle_name},${user.last_name},${formattedAddress},${user.email},${user.dob.toISOString().slice(0, 10)},${user.user_level}`;
+      }).join('\n');
+
+      const csvContent = header + data;
+
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename=employees.csv');
+      res.send(csvContent);
+  });
+});
+
+app.get('/exportAreasXML', middleware.isLoggedIn, (req, res) => {
+  // Query to fetch area details along with the related program names
+  const query = `SELECT 
+    a.area_id,
+    a.area_name,
+    p.program_name
+  FROM 
+    Area a
+  JOIN 
+    Program p ON a.program = p.program_id`;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('No areas found.');
+    }
+
+    // Convert results to XML
+    const xml = builder.buildObject({ areas: results });
+
+    // Set headers to suggest a file download with the correct content type
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Content-Disposition', 'attachment; filename=areas.xml');
+    
+    res.send(xml);
+  });
+});
+
+
+
+
+
+
+
+
+
 app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
   const id = req.params.id;
 
@@ -478,57 +594,98 @@ app.get('/downloadAttachment/:id', middleware.isLoggedIn, (req, res) => {
   });
 });
 
+app.get('/addArea', middleware.isLevelThree, (req, res) => {
+  connection.query('Select * From Program', (err, programs) => {
+    if(err){
+      console.error(err);
+      return res.status(500).send('Server Error 500! Cannot fetch Program fro  database')
+    }
+    res.render('admin/area/add_area', { programs: programs })
+  })
+})
 
-app.get('/viewReport/:id', (req, res) => {
-  const reportId = req.params.id;
+app.post('/addArea', (req, res) => {
+  let { area_name, program } = req.body;
+  connection.query('Insert Into Area (area_name, program) Values (?, ?)', [area_name, Number(program)], (err, reuslt) => {
+    if(err){
+      console.error(err);
+      return res.status(500).send("Server error 500! Cannot send data")
+    }
+    req.flash("success", "Area added to database!");
+    res.redirect("/admin");
+  })
+})
 
-  
-  const query = 
-  `SELECT 
-    r.*, 
-    p.program_name, 
-    a.first_name AS assigned_first_name, a.last_name AS assigned_last_name,
-    t.first_name AS tested_first_name, t.last_name AS tested_last_name,
-    re.first_name AS resolved_first_name, re.last_name AS resolved_last_name
-  FROM Report r
-  LEFT JOIN Program p ON r.program = p.program_id
-  LEFT JOIN User a ON r.assigned_to = a.user_id
-  LEFT JOIN User t ON r.tested_by = t.user_id
-  LEFT JOIN User re ON r.resolved_by = re.user_id
-  WHERE r.report_id = ?`;
+app.get('/viewArea', (req, res) => {
+  let sqlQuery = `
+    SELECT 
+      Area.area_id, 
+      Area.area_name, 
+      Program.program_name,
+      Program.program_category,
+      Program.program_version
+    FROM 
+      Area 
+    JOIN 
+      Program ON Area.program = Program.program_id`;
 
-
-  connection.query(query, [reportId], (err, result) => {
+  connection.query(sqlQuery, (err, areas) => {
     if (err) {
-      console.error("Error fetching report:", err);
-      return res.status(500).send("Database error");
+      console.error(err);
+      return res.status(500).send("Cannot fetch Area data");
     }
-    if (result.length > 0) {
-      // Pass the report data to the EJS template
-      res.render('bugreports/bugReportDetails', { report: result[0] });
-    } else {
-      res.status(404).send('Report not found');
-    }
+    res.render('admin/area/view_area', { areas: areas });
   });
 });
 
+app.get('/editArea/:id', middleware.isLevelThree, (req, res) => {
+  let { id } = req.params;
+  connection.query('Select * From Program', (errP, programs) => {
+    if(errP){
+      console.error(err);
+      return res.status(500).send('Program not fetched!')
+    }
 
+    connection.query('Select * From Area Where area_id = ?', [id], (err, area) => {
+      if(err){
+        console.error(err);
+        return res.status(500).send('Area not fetched')
+      }
+      res.render('admin/area/edit_area', { programs: programs, area: area })
+    })
+  })
+})
 
+app.put('/editArea/:id', middleware.isLevelThree,(req, res) => {
+  let { id } = req.params;
+  let { area_name, program } = req.body;
+  connection.query('Update Area Set area_name = ?, program = ? WHERE area_id = ?', [area_name, program, id], (err, result) => {
+    if(err){
+      console.error(err);
+      return res.status(500).send('Could not update')
+    }
+    req.flash("success", "Area details updated succefully!")
+    res.redirect("/admin")
+  })
+})
 
+app.delete('/deleteArea/:id', middleware.isLevelThree,(req, res) => {
+  let { id } = req.params;
+  connection.query('Delete From Area where area_id = ?', [id], (err, result) => {
+    if(err){
+      console.error(err);
+      return res.status(500).send('Area not deleted')
+    }
+    req.flash("success", "Area details deleted successfully")
+    res.redirect('/admin')
+  })
+})
 
-
-
-
-
-
-
-
-
-app.get('/addEmployee', (req, res) => {
+app.get('/addEmployee', middleware.isLevelThree, (req, res) => {
   res.render('admin/employee/add_employee');
 });
 
-app.post("/addEmployee", (req, res) => {
+app.post("/addEmployee", middleware.isLevelThree, (req, res) => {
   let { fname, mname, lname, address, dob, email, password, userlevel } = req.body;
 
   bcrypt.hash(password, 10, (err, hash) => {
@@ -609,7 +766,7 @@ app.delete("/deleteEmployee/:user_id/:id", middleware.isLevelThree, (req, res) =
       if (err) {
         console.log("Error deleting from the database:", err);
         req.flash("error", "Employee could not be deleted!")
-        res.redirect("/admin")
+        return res.redirect("/admin")
       }
       req.flash("success", "Employee Details Deleted Successfully!")
       res.redirect("/admin")
@@ -681,46 +838,15 @@ app.delete("/deleteProgram/:id", middleware.isLevelThree, (req, res) => {
       if (err) {
         console.log("Error deleting from the database:", err);
         req.flash("error", "Program could not be deleted!")
-        res.redirect("/admin")
+        return res.redirect("/admin")
       }
       req.flash("success", "Program Details Deleted Successfully!")
       res.redirect("/admin")
     });
 });
 
-app.get('/addArea', middleware.isLevelThree, (req, res) => {
-  res.render('admin/Areas/add_area')
-})
 
-app.post('/addArea', middleware.isLevelThree, (req, res) => {
-   let { pName, fArea } = req.body;
-   connection.query('Insert Into Area (program_name, functional_area) Values (?, ?)', [pName, fArea], (err, result) => {
-     if(err){
-       console.log(err);
-       return res.status(500).send("Error Status 500! Database Error!");
-     }
-     req.flash("success", "Program Details Added Successfully!");
-     res.redirect("/admin");
-   });
-});
-
-app.get('/getFunctionalAreas/:programName', (req, res) => {
-  const programName = req.params.programName;
-  connection.query('SELECT area_id, functional_area FROM Area WHERE program_name = ?', [programName], (err, results) => {
-      if (err) {
-          console.error('Error fetching functional areas:', err);
-          res.status(500).send('Server error');
-      } else {
-          res.json(results); 
-      }
-  });
-});
-
-
-
-
-
-app.get('/admin', (req, res) => {
+app.get('/admin', middleware.isLevelThree, (req, res) => {
    res.render('admin/admin');
 });
 
