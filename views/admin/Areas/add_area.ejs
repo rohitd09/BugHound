@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Add Program</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+        body{
+                background: linear-gradient(90deg, #f9f98f, #676767);
+            }
+
+
+        body::before {
+            content: '';
+            position: fixed; 
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('lb.png');
+            background-size: 30%;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7; 
+            z-index: -1; /* Place the background behind the content */
+        }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Program Manager</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Add Functional Areas</h2>
+        <form id="addArea" method="post" action="/addArea">
+            <div class="mb-3">
+                <label for="pName" class="form-label">Program Name:</label>
+                <input type="text" class="form-control" id="pName" name="pName" required>
+            </div>
+            <div class="mb-3">
+                <label for="fArea" class="form-label">Related Functional Area:</label>
+                <input type="text" class="form-control" id="fArea" name="fArea" min="0" required>
+            </div>
+            
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/admin" class="btn btn-danger">Cancel</a>
+                <button type="reset" class="btn btn-warning">Reset</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

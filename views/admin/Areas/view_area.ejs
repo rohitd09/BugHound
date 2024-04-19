@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <title>View Area</title>
+        <title>View Employee</title>
         
         <!-- Bootstrap 5 CSS -->
         <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
@@ -45,9 +45,9 @@
     </head>
     <body>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Area Manager</a>
+                <a class="navbar-brand" href="#">Employee Manager</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -68,20 +68,26 @@
         </nav>
 
         <div class="container mt-4">
-            <h2 class="mb-4 text-center">Area List</h2>
+            <h2 class="mb-4">Employees List</h2>
             <table class="table table-striped">
                 <tr class="table-dark">
-                    <th>Area Id</th>
-                    <th>Area Name</th>
-                    <th>Program</th>
+                    <th>Employee Id</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Last Name</th>
+                    <th>Comapny Email</th>
+                    <th>User Level</th>
                     <th>Action</th>
                 </tr>
-                <% areas.forEach((area) => { %>
+                <% users.forEach((user) => { %>
                     <tr class="table-light">
-                        <td><%= area.area_id %></td>
-                        <td><%= area.area_name %></td>
-                        <td><%= area.program_name %></td>
-                        <td><a href="/editArea/<%= area.area_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> | <a href="/deleteArea/<%= area.area_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
+                        <td><%= user.user_id %></td>
+                        <td><%= user.first_name %></td>
+                        <td><%= user.middle_name %></td>
+                        <td><%= user.last_name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.user_level %></td>
+                        <td><a href="/editEmployee/<%= user.user_id %>" class="icon-pencil"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a> | <a href="/deleteEmployee/<%= currentUser.user_id %>/<%= user.user_id %>?_method=DELETE" class="icon-trash"><i class="fa fa-trash" aria-hidden="true"></i></a></td>
                     </tr>
                 <% }) %>
             </table>

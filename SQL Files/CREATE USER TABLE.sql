@@ -9,3 +9,5 @@ Create Table User(
     user_level enum('1', '2', '3') not null,
     dob date not null
 );
+TRUNCATE User;
+SELECT * FROM User;

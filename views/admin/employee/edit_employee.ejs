@@ -55,7 +55,7 @@
 
         <div class="container mt-4">
             <h2 class="mb-4">Edit Employee</h2>
-            <form action="/editEmployee/<%= user.user_id %>?_method=PUT" method="POST" autocomplete="off">
+            <form action="/editEmployee/<%= user.user_id %>?_method=PUT" method="POST">
                 <div class="mb-3">
                     <label for="user_id" class="form-label">User ID</label>
                     <input type="text" class="form-control" id="user_id" value="<%= user.user_id %>" name="user_id" readonly>
@@ -81,7 +81,7 @@
                     <input type="date" class="form-control" id="dob" name="dob" value="<%= user.dob.toISOString().split('T')[0] %>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Login ID</label>
+                    <label for="email" class="form-label">Email</label>
                     <input type="text" class="form-control" id="email" name="email" value="<%= user.email %>" required>
                 </div>
                 <div class="mb-3">

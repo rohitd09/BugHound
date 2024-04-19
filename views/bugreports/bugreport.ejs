@@ -144,16 +144,16 @@
         <div class="grid">
             <div>
                 <label for="program">Program:</label>
-                <select id="program" name="program" required onchange="updateFunctionalAreas();">
+                <select id="program" name="program" required>
                     <option>--Please choose an option--</option>
                     <% programs.forEach((program) => { %>
                         <option value="<%= program.program_id %>"><%= program.program_name %></option>
                     <% }) %>
-                </select>                
+                </select>
             </div>
             <div>
                 <label for="report_type">Report Type:</label>
-                <select id="report_type" name="report_type" required>
+                <select id="report_type" name="report_type" required onchange="updateFunctionalAreas()">
                     <option>--Please choose an option--</option>
                     <option value="CodingError">Coding Error</option>
                     <option value="DesignIssue">Design Issue</option>
@@ -210,8 +210,8 @@
             <br>
             <div>
                 <label for="functional_area">Functional Area:</label>
-                <select id="functional_area" name="functional_area" <%= currentUser.user_level === '1' ? 'disabled' : '' %>>
-                    <option value="">--Select an option--</option>
+                <select id="functional_area" name="functional_area" required >
+                    <option value="">Select a program first...</option>
                 </select>
             </div>
             <div>
@@ -301,29 +301,50 @@
             <input type="reset" value="Reset">
             <input type="button" value="Cancel" onclick="window.location.href='/';">
         </div>
+
+
+        
     </form>
 </div>
 
 <script>
-    document.getElementById('program').addEventListener('change', function() {
-        var programId = this.value; 
-        var functionalAreaDropdown = document.getElementById('functional_area'); 
-        functionalAreaDropdown.innerHTML = '<option value="">--Select an option--</option>';  
+  // Function to fetch functional areas based on the selected program
+  function updateFunctionalAreas() {
+    var programDropdown = document.getElementById('program');
+    var functionalAreaDropdown = document.getElementById('functional_area');
     
-        if (!programId) return;  
-    
-        fetch(`/getFunctionalAreas/${programId}`)  
-        .then(response => response.json())
-        .then(areas => {
-            areas.forEach(area => {
-                let option = new Option(area.area_name, area.area_id); 
-                functionalAreaDropdown.add(option); 
-            });
-        })
-        .catch(error => console.error('Error fetching functional areas:', error));
-    });
+    // Get the selected program name
+    var selectedProgram = programDropdown.options[programDropdown.selectedIndex].text;
+
+    // Use the Fetch API to make an AJAX request to your endpoint
+    fetch(`/getFunctionalAreas/${encodeURIComponent(selectedProgram)}`)
+      .then(response => response.json())
+      .then(data => {
+        // Clear out the current options
+        functionalAreaDropdown.innerHTML = '';
+        
+        // Default option
+        var defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '--Select Functional Area--';
+        functionalAreaDropdown.appendChild(defaultOption);
+
+        // Populate the dropdown with new options
+        data.forEach(area => {
+          var option = document.createElement('option');
+          option.value = area.area_id; // assuming you want to submit the area_id
+          option.textContent = area.functional_area;
+          functionalAreaDropdown.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching functional areas:', error);
+      });
+  }
+
+  // Add event listener to the program dropdown
+  document.getElementById('program').addEventListener('change', updateFunctionalAreas);
 </script>
-    
-    
+
 </body>
 </html>

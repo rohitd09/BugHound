@@ -1,6 +1,6 @@
-Create Table Area(
+CREATE TABLE Area(
 	area_id int unsigned primary key auto_increment,
-    program int unsigned not null,
-    area_name varchar(50) not null,
-    Foreign Key(program) References Program(program_id)
+    program_name varchar(50) not null,
+    functional_area varchar(50) not null
 )
+SELECT * FROM Area;
